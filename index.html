@@ -6,46 +6,64 @@
     <title>TENON VISION | AI Rendering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
+    <style>
+        /* Force the cursor to show it's clickable */
+        #box { cursor: pointer !important; position: relative; z-index: 10; }
+        /* Prevent internal elements from stealing the click */
+        #box * { pointer-events: none !important; }
+        .emerald-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.1); }
+    </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-500 font-mono bg-slate-900 px-2 py-1 rounded">v1.0.5 LIVE</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-500 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-500/20">v1.0.6 SECURE</div>
 
     <nav class="p-8 max-w-7xl mx-auto flex justify-between">
-        <div class="text-2xl font-black italic text-emerald-400">TENON <span class="text-white">VISION</span></div>
+        <div class="text-2xl font-black italic text-emerald-400">TENON <span class="text-white font-normal">VISION</span></div>
     </nav>
 
     <main class="max-w-4xl mx-auto px-6 py-12 text-center">
-        <h1 class="text-5xl font-extrabold mb-4 leading-tight">CAD to <span class="text-emerald-400">Reality.</span></h1>
-        <p class="text-slate-400 mb-12 italic">Upload a Cabinet Vision screenshot to generate a photo-style render.</p>
+        <h1 class="text-5xl font-extrabold mb-4 tracking-tight">CAD to <span class="text-emerald-400">Reality.</span></h1>
+        <p class="text-slate-400 mb-12 italic">Professional rendering for Cabinet Vision & Mozaik.</p>
 
         <div class="grid md:grid-cols-2 gap-8 text-left">
-            <div id="box" class="border-2 border-dashed border-slate-800 rounded-3xl p-10 bg-slate-900/50 flex flex-col items-center justify-center min-h-[350px] cursor-pointer hover:border-emerald-500 transition-all">
+            <div id="box" class="border-2 border-dashed border-slate-800 rounded-3xl p-10 bg-slate-900/50 flex flex-col items-center justify-center min-h-[350px] hover:border-emerald-500/50 transition-all">
+                
                 <input type="file" id="fileIn" style="display:none;" accept="image/*">
-                <div id="prompt-text">
-                    <p class="text-xl font-bold text-center">Click to Upload Screenshot</p>
-                    <p class="text-slate-500 text-sm text-center mt-2">Select your cabinet drawing</p>
+                
+                <div id="prompt-text" class="flex flex-col items-center">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                    <p class="text-xl font-bold">Click to Upload</p>
+                    <p class="text-slate-500 text-sm mt-2">Select your cabinet drawing</p>
                 </div>
-                <img id="view" class="hidden w-full h-full object-contain rounded-2xl">
+
+                <img id="view" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-3xl bg-slate-900">
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center min-h-[350px]">
-                <div id="msg" class="text-slate-500 text-xs font-mono uppercase tracking-widest mb-4">Ready</div>
-                <img id="out" class="hidden w-full rounded-xl shadow-2xl mb-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center min-h-[350px] emerald-glow">
+                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-widest mb-4">System: Standby</div>
+                
+                <img id="out" class="hidden w-full rounded-xl shadow-2xl border border-emerald-500/20 mb-6">
                 
                 <div id="btn-group" class="hidden w-full space-y-4">
-                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-sm outline-none">
-                        <option value="Modern, white marble, luxury lighting">Modern White Marble</option>
-                        <option value="Industrial, dark wood, black hardware">Industrial Dark Wood</option>
-                    </select>
-                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 uppercase tracking-tight">Generate Vision</button>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Style Selection</label>
+                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-sm outline-none focus:border-emerald-500">
+                            <option value="Modern kitchen, white marble counters, luxury lighting, photorealistic">Modern Marble</option>
+                            <option value="Industrial kitchen, aged oak wood, black hardware, moody cinematic lighting">Industrial Oak</option>
+                            <option value="Classic Hampton style, white shaker cabinets, brass handles, bright natural light">Hampton Shaker</option>
+                        </select>
+                    </div>
+                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 uppercase tracking-tighter shadow-lg shadow-emerald-500/20">Generate Vision</button>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // Use the exact proxy path
+        // Ensure this matches your folder path pages/api/fal/proxy.js
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         const box = document.getElementById('box');
@@ -58,10 +76,13 @@
         const style = document.getElementById('style');
         const promptText = document.getElementById('prompt-text');
 
-        // FORCE CLICK
-        box.onclick = () => fileIn.click();
+        // FORCE THE TRIGGER
+        box.addEventListener('click', function(e) {
+            console.log("Box clicked, launching file input...");
+            fileIn.click();
+        });
 
-        fileIn.onchange = (e) => {
+        fileIn.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -70,28 +91,34 @@
                     view.classList.remove('hidden');
                     promptText.classList.add('hidden');
                     btnGroup.classList.remove('hidden');
-                    msg.innerHTML = "Image Loaded";
+                    msg.innerHTML = "System: Image Loaded";
+                    msg.classList.replace('text-slate-600', 'text-emerald-500');
                 };
                 reader.readAsDataURL(file);
             }
-        };
+        });
 
         go.onclick = async () => {
             go.disabled = true;
-            msg.innerHTML = "🎨 Rendering... (20s)";
+            go.innerHTML = "PROCESSING...";
+            msg.innerHTML = "System: Mixing Materials... (20s)";
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `8k kitchen render, ${style.value}, photorealistic`,
-                        image_size: "landscape_16_9"
+                        prompt: `High-end architectural photography of a kitchen, ${style.value}, 8k, photorealistic`,
+                        image_size: "landscape_16_9",
+                        controlnet_conditioning_scale: 0.92
                     }
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
-                msg.innerHTML = "Render Complete!";
+                msg.innerHTML = "System: Success";
+                go.innerHTML = "GENERATE AGAIN";
             } catch (e) {
-                msg.innerHTML = "Error: Check Vercel Key";
+                console.error(e);
+                msg.innerHTML = "System Error: Check API Key";
+                go.innerHTML = "RETRY";
             }
             go.disabled = false;
         };
