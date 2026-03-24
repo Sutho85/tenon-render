@@ -3,127 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION | AI Kitchen Rendering</title>
+    <title>TENON VISION | AI Rendering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
-    <style>
-        .emerald-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.15); }
-        #dropzone { cursor: pointer !important; transition: all 0.3s ease; }
-        #dropzone:hover { border-color: #10b981; background: rgba(16, 185, 129, 0.05); }
-    </style>
 </head>
-<body class="bg-slate-950 text-white font-sans min-h-screen">
+<body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-        <div class="text-2xl font-black tracking-tighter text-emerald-400 font-mono italic">TENON <span class="text-white">VISION</span></div>
-        <span class="text-slate-500 text-xs font-mono uppercase tracking-widest">v1.0.4 Secure</span>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-500 font-mono bg-slate-900 px-2 py-1 rounded">v1.0.5 LIVE</div>
+
+    <nav class="p-8 max-w-7xl mx-auto flex justify-between">
+        <div class="text-2xl font-black italic text-emerald-400">TENON <span class="text-white">VISION</span></div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 pt-10 pb-24 text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">From CAD to <span class="text-emerald-400">Cinematic.</span></h1>
-        <p class="text-slate-400 text-lg mb-12 italic">The professional rendering engine for Cabinet Vision & Mozaik users.</p>
+    <main class="max-w-4xl mx-auto px-6 py-12 text-center">
+        <h1 class="text-5xl font-extrabold mb-4 leading-tight">CAD to <span class="text-emerald-400">Reality.</span></h1>
+        <p class="text-slate-400 mb-12 italic">Upload a Cabinet Vision screenshot to generate a photo-style render.</p>
 
-        <div class="grid lg:grid-cols-2 gap-8 text-left">
-            
-            <div id="dropzone" class="relative border-2 border-dashed border-slate-800 rounded-[2.5rem] p-12 bg-slate-900/40 flex flex-col items-center justify-center min-h-[450px]">
-                <input type="file" id="fileInput" style="display:none;" accept="image/*">
-                
-                <div id="upload-content" class="flex flex-col items-center space-y-4">
-                    <div class="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center">
-                        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold">Click to Upload CAD Screen</p>
-                        <p class="text-slate-500 mt-2">JPG, PNG, or WebP</p>
-                    </div>
+        <div class="grid md:grid-cols-2 gap-8 text-left">
+            <div id="box" class="border-2 border-dashed border-slate-800 rounded-3xl p-10 bg-slate-900/50 flex flex-col items-center justify-center min-h-[350px] cursor-pointer hover:border-emerald-500 transition-all">
+                <input type="file" id="fileIn" style="display:none;" accept="image/*">
+                <div id="prompt-text">
+                    <p class="text-xl font-bold text-center">Click to Upload Screenshot</p>
+                    <p class="text-slate-500 text-sm text-center mt-2">Select your cabinet drawing</p>
                 </div>
-
-                <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-[2.5rem] bg-slate-900">
+                <img id="view" class="hidden w-full h-full object-contain rounded-2xl">
             </div>
 
-            <div class="bg-slate-900/60 rounded-[2.5rem] border border-slate-800 p-10 flex flex-col items-center justify-center min-h-[450px] emerald-glow">
-                <div id="status" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.3em] mb-6">Engine: Standby</div>
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center min-h-[350px]">
+                <div id="msg" class="text-slate-500 text-xs font-mono uppercase tracking-widest mb-4">Ready</div>
+                <img id="out" class="hidden w-full rounded-xl shadow-2xl mb-4">
                 
-                <img id="resultImage" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/30 mb-6">
-                
-                <div id="controls" class="hidden w-full space-y-5">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Select Material Finish</label>
-                        <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-2xl text-sm outline-none focus:border-emerald-500 transition-all">
-                            <option value="Modern Kitchen, high-gloss white cabinets, marble counters, warm architectural lighting">Modern White & Marble</option>
-                            <option value="Rustic Industrial, aged oak wood cabinets, black hardware, moody cinematic lighting">Industrial Aged Oak</option>
-                            <option value="Clean Hampton style, white shaker cabinets, brass handles, bright natural light">Hampton Shaker</option>
-                        </select>
-                    </div>
-                    <button id="renderBtn" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl hover:bg-emerald-400 transition-all uppercase tracking-tighter text-lg shadow-lg shadow-emerald-500/20">
-                        Generate Vision
-                    </button>
+                <div id="btn-group" class="hidden w-full space-y-4">
+                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl text-sm outline-none">
+                        <option value="Modern, white marble, luxury lighting">Modern White Marble</option>
+                        <option value="Industrial, dark wood, black hardware">Industrial Dark Wood</option>
+                    </select>
+                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 uppercase tracking-tight">Generate Vision</button>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // Use the Proxy path we set up in Step 2
+        // Use the exact proxy path
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
-        const fileInput = document.getElementById('fileInput');
-        const dropzone = document.getElementById('dropzone');
-        const preview = document.getElementById('preview');
-        const renderBtn = document.getElementById('renderBtn');
-        const resultImage = document.getElementById('resultImage');
-        const status = document.getElementById('status');
-        const controls = document.getElementById('controls');
-        const styleSelect = document.getElementById('styleSelect');
-        const uploadContent = document.getElementById('upload-content');
+        const box = document.getElementById('box');
+        const fileIn = document.getElementById('fileIn');
+        const view = document.getElementById('view');
+        const msg = document.getElementById('msg');
+        const out = document.getElementById('out');
+        const btnGroup = document.getElementById('btn-group');
+        const go = document.getElementById('go');
+        const style = document.getElementById('style');
+        const promptText = document.getElementById('prompt-text');
 
-        // FORCE THE CLICK
-        dropzone.addEventListener('click', () => {
-            fileInput.click();
-        });
+        // FORCE CLICK
+        box.onclick = () => fileIn.click();
 
-        fileInput.addEventListener('change', (e) => {
+        fileIn.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    uploadContent.classList.add('hidden');
-                    controls.classList.remove('hidden');
-                    status.innerHTML = "Engine: Image Ready";
-                    status.classList.replace('text-slate-500', 'text-emerald-400');
-                }
+                reader.onload = (ev) => {
+                    view.src = ev.target.result;
+                    view.classList.remove('hidden');
+                    promptText.classList.add('hidden');
+                    btnGroup.classList.remove('hidden');
+                    msg.innerHTML = "Image Loaded";
+                };
                 reader.readAsDataURL(file);
             }
-        });
+        };
 
-        renderBtn.onclick = async () => {
-            renderBtn.disabled = true;
-            renderBtn.innerHTML = "RENDERING...";
-            status.innerHTML = "Engine: Processing Textures...";
-
+        go.onclick = async () => {
+            go.disabled = true;
+            msg.innerHTML = "🎨 Rendering... (20s)";
             try {
-                const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
-                        control_image_url: preview.src,
-                        prompt: `Professional 8k interior kitchen photography, ${styleSelect.value}, highly detailed, photorealistic`,
-                        image_size: "landscape_16_9",
-                        controlnet_conditioning_scale: 0.9
-                    },
+                        control_image_url: view.src,
+                        prompt: `8k kitchen render, ${style.value}, photorealistic`,
+                        image_size: "landscape_16_9"
+                    }
                 });
-
-                resultImage.src = result.data.images[0].url;
-                resultImage.classList.remove('hidden');
-                status.innerHTML = "Engine: Success";
-                renderBtn.innerHTML = "RENDER COMPLETE";
-                renderBtn.disabled = false;
-            } catch (err) {
-                console.error(err);
-                status.innerHTML = "Engine: Error (Check Vercel Key)";
-                renderBtn.innerHTML = "RETRY";
-                renderBtn.disabled = false;
+                out.src = res.data.images[0].url;
+                out.classList.remove('hidden');
+                msg.innerHTML = "Render Complete!";
+            } catch (e) {
+                msg.innerHTML = "Error: Check Vercel Key";
             }
+            go.disabled = false;
         };
     </script>
 </body>
