@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.3.5</title>
+    <title>TENON VISION v1.3.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
 
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.5 - STANDBY</p>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.8 - INTERNAL ENGINE</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -25,28 +24,38 @@
         </div>
 
         <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
-            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Render</button>
-            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Ready</div>
+            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm shadow-lg shadow-emerald-500/20">Generate Render</button>
+            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
             <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
     <script>
-        // Use a 1-second delay to give the library time to land
-        setTimeout(() => {
+        (function() {
             const statusBar = document.getElementById('status-bar');
-            if (typeof fal !== 'undefined') {
+            const script = document.createElement('script');
+            // Using the 'Polyfill' mirror which is rarely on block-lists
+            script.src = "https://cdn.jsdelivr.net/npm/@fal-ai/client@1.0.1/dist/bundle.min.js";
+            
+            script.onload = () => {
                 fal.config({ proxyUrl: "/api/fal/proxy" });
-                statusBar.innerText = "v1.3.5 - ENGINE CONNECTED";
+                statusBar.innerText = "v1.3.8 - ENGINE ONLINE";
                 statusBar.style.color = "#10b981";
-            } else {
-                statusBar.innerText = "CONNECTION BLOCKED BY BROWSER";
+            };
+            
+            script.onerror = () => {
+                statusBar.innerText = "CRITICAL BLOCK - TRY TURNING OFF AD-BLOCKERS";
                 statusBar.style.color = "#ef4444";
-            }
-        }, 1000);
+            };
+            
+            document.head.appendChild(script);
+        })();
 
         const fileIn = document.getElementById('fileIn');
         const view = document.getElementById('view');
+        const go = document.getElementById('go');
+        const aiMsg = document.getElementById('ai-msg');
+        const out = document.getElementById('out');
 
         fileIn.onchange = (e) => {
             const file = e.target.files[0];
@@ -63,19 +72,19 @@
         };
 
         async function runRender() {
-            const go = document.getElementById('go');
-            const aiMsg = document.getElementById('ai-msg');
-            const out = document.getElementById('out');
-
+            if (typeof fal === 'undefined') {
+                alert("AI Engine is still being blocked by your browser extensions.");
+                return;
+            }
+            
             go.disabled = true;
-            aiMsg.innerHTML = "RENDERING...";
-
+            aiMsg.innerHTML = "SYSTEM: RENDERING...";
+            
             try {
-                // Use the global 'fal' object
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: "High-end kitchen photo, modern cabinets, marble, 8k",
+                        prompt: "High-end kitchen photo, modern cabinets, marble island, 8k",
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
@@ -84,8 +93,7 @@
                 out.classList.remove('hidden');
                 aiMsg.innerHTML = "SUCCESS";
             } catch (e) {
-                aiMsg.innerHTML = "ERROR: CHECK API KEY";
-                console.error(e);
+                aiMsg.innerHTML = "ERROR: CHECK VERCEL API KEY";
             }
             go.disabled = false;
         }
