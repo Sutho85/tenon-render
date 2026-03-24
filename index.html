@@ -7,79 +7,90 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
 </head>
-<body class="bg-slate-950 text-white p-10">
+<body class="bg-slate-950 text-white p-10 font-sans">
 
-    <div class="max-w-4xl mx-auto space-y-10">
-        <header class="text-center">
-            <h1 class="text-4xl font-black text-emerald-400 uppercase tracking-tighter">Tenon Vision</h1>
-            <p class="text-slate-500 font-mono text-xs mt-2">v1.1.8 - NATIVE RESET</p>
+    <div class="max-w-5xl mx-auto">
+        <header class="flex justify-between items-center mb-12">
+            <h1 class="text-3xl font-black text-emerald-400 italic">TENON <span class="text-white">VISION</span></h1>
+            <div id="debug" class="text-[10px] font-mono text-slate-600 bg-slate-900 px-3 py-1 rounded">v1.1.9 - STABLE LOAD</div>
         </header>
 
-        <div class="grid md:grid-cols-2 gap-10">
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 space-y-6">
-                <h2 class="font-bold text-emerald-500 uppercase text-sm tracking-widest">Step 1: Upload</h2>
-                
-                <input type="file" id="fileInput" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 cursor-pointer">
+        <div class="grid lg:grid-cols-2 gap-12">
+            
+            <div class="space-y-6">
+                <div class="bg-slate-900 border-2 border-slate-800 p-8 rounded-[2rem]">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6">1. Select CAD File</h2>
+                    
+                    <input type="file" id="fileInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 cursor-pointer">
 
-                <div class="mt-4 border-t border-slate-800 pt-6">
-                    <img id="preview" class="hidden w-full rounded-xl border border-slate-700 shadow-2xl">
-                    <p id="pre-msg" class="text-slate-700 text-xs font-mono text-center">Preview will appear here</p>
+                    <div id="preview-frame" class="mt-8 border-t border-slate-800 pt-8 flex items-center justify-center min-h-[300px] bg-black/20 rounded-2xl overflow-hidden">
+                        <p id="placeholder-text" class="text-slate-800 font-mono text-[10px] uppercase">Preview Standby</p>
+                        <img id="preview" class="hidden w-full h-auto max-h-[400px] object-contain shadow-2xl">
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col items-center justify-center">
-                <div id="status" class="text-slate-500 font-mono text-[10px] uppercase mb-6 tracking-[0.3em]">Ready for Image</div>
+            <div class="bg-slate-900 border border-slate-800 p-10 rounded-[2rem] flex flex-col items-center justify-center min-h-[500px]">
+                <div id="status" class="text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">Engine: Awaiting Image</div>
                 
-                <img id="resultImage" class="hidden w-full rounded-xl mb-6 border border-emerald-500/20">
+                <img id="resultImage" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
 
-                <div id="controls" class="hidden w-full space-y-4">
-                    <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-bold">
-                        <option value="Modern Kitchen, white marble, warm lighting">Modern White Marble</option>
-                        <option value="Industrial Kitchen, dark oak, black hardware">Industrial Dark Oak</option>
+                <div id="controls" class="hidden w-full space-y-6">
+                    <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm font-bold text-center">
+                        <option value="Modern luxury kitchen, white marble, warm lighting">Modern White & Marble</option>
+                        <option value="Industrial kitchen, dark oak, black hardware">Industrial Dark Oak</option>
+                        <option value="Hampton style, white shaker, brass handles">Hampton Shaker</option>
                     </select>
-                    <button id="renderBtn" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-500 transition-all uppercase tracking-tighter">Generate Render</button>
+                    <button id="renderBtn" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase text-xl">Generate Render</button>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script>
-        // Use the Proxy
+        // Setup the Proxy Connection
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         const fileInput = document.getElementById('fileInput');
         const preview = document.getElementById('preview');
-        const preMsg = document.getElementById('pre-msg');
-        const renderBtn = document.getElementById('renderBtn');
-        const resultImage = document.getElementById('resultImage');
+        const placeholder = document.getElementById('placeholder-text');
         const status = document.getElementById('status');
         const controls = document.getElementById('controls');
+        const renderBtn = document.getElementById('renderBtn');
+        const resultImage = document.getElementById('resultImage');
+        const debug = document.getElementById('debug');
 
-        fileInput.onchange = (e) => {
+        // FORCE THE PREVIEW (No matter what)
+        fileInput.onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    preMsg.classList.add('hidden');
-                    controls.classList.remove('hidden');
-                    status.innerHTML = "Image Loaded";
-                }
-                reader.readAsDataURL(file);
+                debug.innerHTML = "LOG: File Detected - " + file.name;
+                
+                // Using a URL Object instead of a FileReader - this is more modern and harder to block
+                const objectURL = URL.createObjectURL(file);
+                
+                preview.src = objectURL;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                controls.classList.remove('hidden');
+                
+                status.innerHTML = "SYSTEM: READY";
+                status.style.color = "#10b981";
+                debug.innerHTML = "LOG: Image Rendered to Preview";
             }
         };
 
         renderBtn.onclick = async () => {
             renderBtn.disabled = true;
-            renderBtn.innerHTML = "WORKING...";
-            status.innerHTML = "Generating AI Render...";
+            renderBtn.innerHTML = "RENDERING...";
+            status.innerHTML = "SYSTEM: PROCESSING AI...";
 
             try {
                 const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
-                        control_image_url: preview.src,
-                        prompt: `8k photo of a kitchen, ${document.getElementById('styleSelect').value}, photorealistic`,
+                        control_image_url: preview.src, // Uses the same preview link
+                        prompt: `High-end architectural photography, ${document.getElementById('styleSelect').value}, photorealistic, 8k`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     },
@@ -87,12 +98,12 @@
 
                 resultImage.src = result.data.images[0].url;
                 resultImage.classList.remove('hidden');
-                status.innerHTML = "Success!";
+                status.innerHTML = "SYSTEM: SUCCESS";
                 renderBtn.innerHTML = "GENERATE AGAIN";
                 renderBtn.disabled = false;
             } catch (err) {
                 console.error(err);
-                status.innerHTML = "Error: Check API Key";
+                status.innerHTML = "ERROR: CHECK API KEY";
                 renderBtn.innerHTML = "RETRY";
                 renderBtn.disabled = false;
             }
