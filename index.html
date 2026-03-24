@@ -6,100 +6,80 @@
     <title>TENON VISION | AI Rendering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
-    <style>
-        .emerald-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.15); }
-    </style>
 </head>
-<body class="bg-slate-950 text-white font-sans min-h-screen">
+<body class="bg-slate-950 text-white p-10">
 
-    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-        <div class="text-2xl font-black tracking-tighter text-emerald-400 italic">TENON <span class="text-white font-normal uppercase">VISION</span></div>
-        <span class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.3em]">v1.1.6 Restored</span>
-    </nav>
+    <div class="max-w-4xl mx-auto space-y-10">
+        <header class="text-center">
+            <h1 class="text-4xl font-black text-emerald-400 uppercase tracking-tighter">Tenon Vision</h1>
+            <p class="text-slate-500 font-mono text-xs mt-2">v1.1.8 - NATIVE RESET</p>
+        </header>
 
-    <main class="max-w-6xl mx-auto px-6 pt-10 pb-24 text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tighter">CAD to <span class="text-emerald-400">Cinematic.</span></h1>
-        <p class="text-slate-400 text-lg mb-12 italic leading-relaxed">The professional rendering engine for Cabinet Vision & Mozaik.</p>
-
-        <div class="grid lg:grid-cols-2 gap-8 text-left">
-            
-            <div id="dropzone" onclick="document.getElementById('fileInput').click()" class="relative border-2 border-dashed border-slate-800 rounded-[2.5rem] p-12 bg-slate-900/40 flex flex-col items-center justify-center min-h-[450px] cursor-pointer hover:border-emerald-500/40 transition-all overflow-hidden">
-                <input type="file" id="fileInput" style="display:none;" accept="image/*">
+        <div class="grid md:grid-cols-2 gap-10">
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 space-y-6">
+                <h2 class="font-bold text-emerald-500 uppercase text-sm tracking-widest">Step 1: Upload</h2>
                 
-                <div id="upload-content" class="flex flex-col items-center space-y-4">
-                    <div class="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center">
-                        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold uppercase tracking-tight">Upload CAD Screen</p>
-                        <p class="text-slate-500 mt-2 font-mono text-xs uppercase tracking-widest">Select your screenshot</p>
-                    </div>
-                </div>
+                <input type="file" id="fileInput" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 cursor-pointer">
 
-                <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-[2.5rem] bg-slate-950">
+                <div class="mt-4 border-t border-slate-800 pt-6">
+                    <img id="preview" class="hidden w-full rounded-xl border border-slate-700 shadow-2xl">
+                    <p id="pre-msg" class="text-slate-700 text-xs font-mono text-center">Preview will appear here</p>
+                </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[450px] emerald-glow">
-                <div id="status" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">System: Standby</div>
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 flex flex-col items-center justify-center">
+                <div id="status" class="text-slate-500 font-mono text-[10px] uppercase mb-6 tracking-[0.3em]">Ready for Image</div>
                 
-                <img id="resultImage" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
-                
-                <div id="controls" class="hidden w-full space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Select Material Finish</label>
-                        <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 font-bold">
-                            <option value="Modern Kitchen, high-gloss white cabinets, marble counters, warm architectural lighting">Modern White & Marble</option>
-                            <option value="Industrial style kitchen, aged oak wood cabinetry, black matte hardware, moody cinematic lighting">Industrial Aged Oak</option>
-                            <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural light">Hampton Shaker</option>
-                        </select>
-                    </div>
-                    <button id="renderBtn" class="w-full bg-emerald-500 text-black font-black py-6 rounded-2xl hover:bg-emerald-400 transition-all uppercase tracking-tighter text-xl shadow-lg shadow-emerald-500/20">
-                        Generate Vision
-                    </button>
+                <img id="resultImage" class="hidden w-full rounded-xl mb-6 border border-emerald-500/20">
+
+                <div id="controls" class="hidden w-full space-y-4">
+                    <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-bold">
+                        <option value="Modern Kitchen, white marble, warm lighting">Modern White Marble</option>
+                        <option value="Industrial Kitchen, dark oak, black hardware">Industrial Dark Oak</option>
+                    </select>
+                    <button id="renderBtn" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-500 transition-all uppercase tracking-tighter">Generate Render</button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        // Use the Vercel Proxy
+        // Use the Proxy
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         const fileInput = document.getElementById('fileInput');
         const preview = document.getElementById('preview');
+        const preMsg = document.getElementById('pre-msg');
         const renderBtn = document.getElementById('renderBtn');
         const resultImage = document.getElementById('resultImage');
         const status = document.getElementById('status');
         const controls = document.getElementById('controls');
-        const styleSelect = document.getElementById('styleSelect');
-        const uploadContent = document.getElementById('upload-content');
 
-        fileInput.addEventListener('change', (e) => {
+        fileInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     preview.src = event.target.result;
                     preview.classList.remove('hidden');
-                    uploadContent.classList.add('hidden');
+                    preMsg.classList.add('hidden');
                     controls.classList.remove('hidden');
-                    status.innerHTML = "System: Image Ready";
-                    status.style.color = "#10b981";
+                    status.innerHTML = "Image Loaded";
                 }
                 reader.readAsDataURL(file);
             }
-        });
+        };
 
         renderBtn.onclick = async () => {
             renderBtn.disabled = true;
-            renderBtn.innerHTML = "RENDERING...";
-            status.innerHTML = "System: Mixing Materials... (20s)";
+            renderBtn.innerHTML = "WORKING...";
+            status.innerHTML = "Generating AI Render...";
 
             try {
                 const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: preview.src,
-                        prompt: `High-end architectural photography, ${styleSelect.value}, photorealistic, 8k, masterfully lit`,
+                        prompt: `8k photo of a kitchen, ${document.getElementById('styleSelect').value}, photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     },
@@ -107,12 +87,12 @@
 
                 resultImage.src = result.data.images[0].url;
                 resultImage.classList.remove('hidden');
-                status.innerHTML = "System: Success";
+                status.innerHTML = "Success!";
                 renderBtn.innerHTML = "GENERATE AGAIN";
                 renderBtn.disabled = false;
             } catch (err) {
                 console.error(err);
-                status.innerHTML = "System Error: Check API Connection";
+                status.innerHTML = "Error: Check API Key";
                 renderBtn.innerHTML = "RETRY";
                 renderBtn.disabled = false;
             }
