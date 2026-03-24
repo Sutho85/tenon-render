@@ -6,57 +6,67 @@
     <title>TENON VISION | AI Rendering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
+    <style>
+        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.1); }
+        #clickBtn:active { transform: scale(0.95); }
+    </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.0.9 SOLID</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.0 BULLETPROOF</div>
 
-    <nav class="p-8 max-w-7xl mx-auto flex justify-between">
+    <nav class="p-8 max-w-7xl mx-auto flex justify-between items-center">
         <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-6 py-12">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="grid lg:grid-cols-2 gap-16 items-start">
             
-            <div class="space-y-6">
-                <h1 class="text-6xl font-extrabold tracking-tighter leading-none">CAD to <span class="text-emerald-400">REALITY.</span></h1>
-                <p class="text-slate-400 text-lg leading-relaxed italic">Upload your Cabinet Vision or Mozaik screenshot. Close the deal with a cinematic render.</p>
-                
-                <div id="upload-zone" class="border-2 border-dashed border-slate-800 rounded-3xl p-8 bg-slate-900/50 flex flex-col items-center justify-center min-h-[300px]">
+            <div class="space-y-8">
+                <div>
+                    <h1 class="text-7xl font-black tracking-tighter leading-[0.9] mb-4">CAD TO <span class="text-emerald-500">REAL.</span></h1>
+                    <p class="text-slate-400 text-lg italic">The elite rendering engine for Cabinet Vision & Mozaik.</p>
+                </div>
+
+                <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center space-y-6">
                     <input type="file" id="fileIn" class="hidden" accept="image/*">
                     
-                    <button id="clickBtn" class="bg-emerald-500 text-black font-black px-8 py-4 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                        SELECT CAD IMAGE
+                    <button id="clickBtn" type="button" class="w-full bg-emerald-500 text-black font-black py-6 rounded-2xl hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 text-xl uppercase tracking-tighter">
+                        1. Select CAD Screenshot
                     </button>
-                    <p class="text-slate-500 text-xs mt-4 font-mono">JPG, PNG, OR WEBP SCREENSHOTS</p>
-                    
-                    <img id="view" class="hidden mt-6 w-full max-h-[300px] object-contain rounded-xl border border-slate-700">
+
+                    <div id="preview-container" class="hidden w-full border-t border-slate-800 pt-6">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 text-center">Selected Drawing:</p>
+                        <img id="view" class="w-full rounded-xl border border-slate-700 shadow-2xl max-h-[400px] object-contain">
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[500px] shadow-2xl">
-                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-widest mb-6">Status: Awaiting Image</div>
+            <div class="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 flex flex-col items-center justify-center min-h-[550px] emerald-glow">
+                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">System: Standby</div>
                 
                 <img id="out" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
                 
                 <div id="controls" class="hidden w-full space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Style Selection</label>
-                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-2xl text-sm outline-none focus:border-emerald-500">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Render Style</label>
+                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 text-white font-bold">
                             <option value="Modern luxury kitchen, white marble countertops, high-gloss white cabinetry, warm cinematic architectural lighting">Modern White Marble</option>
                             <option value="Industrial kitchen, aged oak wood cabinets, black matte hardware, moody cinematic lighting">Industrial Aged Oak</option>
                             <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural morning light">Hampton Shaker</option>
                         </select>
                     </div>
-                    <button id="go" class="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-emerald-400 hover:text-black transition-all uppercase tracking-tighter text-lg">Generate Vision</button>
+                    <button id="go" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase tracking-tighter text-xl shadow-lg">
+                        2. Generate Vision
+                    </button>
                 </div>
             </div>
+
         </div>
     </main>
 
     <script>
-        // Setup Proxy
+        // Set the Proxy URL
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         const fileIn = document.getElementById('fileIn');
@@ -67,32 +77,36 @@
         const controls = document.getElementById('controls');
         const go = document.getElementById('go');
         const style = document.getElementById('style');
+        const previewContainer = document.getElementById('preview-container');
 
-        // Simple, Direct Click
-        clickBtn.onclick = () => fileIn.click();
+        // DIRECT CLICK EVENT
+        clickBtn.addEventListener('click', function() {
+            console.log("Button clicked!");
+            fileIn.click();
+        });
 
-        fileIn.onchange = (e) => {
+        fileIn.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (ev) => {
+                reader.onload = function(ev) {
                     view.src = ev.target.result;
-                    view.classList.remove('hidden');
+                    previewContainer.classList.remove('hidden');
                     controls.classList.remove('hidden');
                     clickBtn.innerHTML = "CHANGE IMAGE";
                     clickBtn.classList.replace('bg-emerald-500', 'bg-slate-800');
                     clickBtn.classList.replace('text-black', 'text-white');
-                    msg.innerHTML = "Status: Image Ready";
+                    msg.innerHTML = "System: Image Loaded";
                     msg.classList.replace('text-slate-600', 'text-emerald-500');
                 };
                 reader.readAsDataURL(file);
             }
-        };
+        });
 
-        go.onclick = async () => {
+        go.onclick = async function() {
             go.disabled = true;
             go.innerHTML = "RENDERING...";
-            msg.innerHTML = "Status: Mixing Materials... (20s)";
+            msg.innerHTML = "System: Mixing Materials... (20s)";
             
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
@@ -105,11 +119,11 @@
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
-                msg.innerHTML = "Status: Success";
-                go.innerHTML = "NEW RENDER";
+                msg.innerHTML = "System: Success";
+                go.innerHTML = "GENERATE AGAIN";
             } catch (e) {
                 console.error(e);
-                msg.innerHTML = "Status: Error (Check Vercel Key)";
+                msg.innerHTML = "System Error: Check Vercel Key";
                 go.innerHTML = "RETRY";
             }
             go.disabled = false;
