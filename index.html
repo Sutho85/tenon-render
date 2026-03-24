@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.3.2</title>
+    <title>TENON VISION v1.3.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
@@ -11,7 +11,7 @@
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.2 - TUNNEL MODE</p>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.3 - BUNDLED MODE</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -23,25 +23,30 @@
             <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting Image...</p>
         </div>
 
-        <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
             <button id="go" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm shadow-lg shadow-emerald-500/20">Generate Render</button>
-            <div id="ai-msg" class="text-center text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
+            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
             <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
     <script type="module">
-        // This method is much harder for browsers to block
-        import('https://cdn.skypack.dev/@fal-ai/client').then((fal) => {
-            window.fal = fal;
-            fal.config({ proxyUrl: "/api/fal/proxy" });
-            document.getElementById('status-bar').innerText = "v1.3.2 - ENGINE ATTACHED";
-            document.getElementById('status-bar').style.color = "#10b981";
-        }).catch(err => {
-            document.getElementById('status-bar').innerText = "STILL BLOCKED - CHECKING BROWSER";
-            document.getElementById('status-bar').style.color = "#ef4444";
-        });
+        // Since you've added it to package.json, we import it as a native module
+        import * as fal from "https://esm.run/@fal-ai/client";
 
+        const statusBar = document.getElementById('status-bar');
+        
+        try {
+            fal.config({ proxyUrl: "/api/fal/proxy" });
+            window.fal = fal;
+            statusBar.innerText = "v1.3.3 - NATIVE ATTACHED";
+            statusBar.style.color = "#10b981";
+        } catch (e) {
+            statusBar.innerText = "BUNDLE ERROR";
+            statusBar.style.color = "#ef4444";
+        }
+
+        // Logic for buttons
         const fileIn = document.getElementById('fileIn');
         const view = document.getElementById('view');
         const go = document.getElementById('go');
@@ -63,7 +68,6 @@
         };
 
         go.onclick = async () => {
-            if (!window.fal) return alert("AI not loaded yet.");
             go.disabled = true;
             aiMsg.innerHTML = "SYSTEM: RENDERING...";
             try {
