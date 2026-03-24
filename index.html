@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.4.5</title>
+    <title>TENON VISION v1.4.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
 
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.4.5 - INITIALIZING...</p>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.4.9 - PROBING ENGINE...</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -32,26 +31,28 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
-
     <script>
-        // Check if Tailwind loaded (Fixes the "Plain HTML" look)
-        if (typeof tailwind === 'undefined') {
-            console.error("Tailwind failed to load. Check Vercel Headers.");
-        }
-
-        // Check for Engine
-        const checkEngine = setInterval(() => {
+        // Direct Ignition
+        window.addEventListener('load', function() {
             const status = document.getElementById('status-bar');
+            
             if (typeof fal !== 'undefined') {
-                fal.config({ proxyUrl: "/api/fal/proxy" });
-                status.innerText = "v1.4.5 - ENGINE ONLINE";
-                status.style.color = "#10b981";
-                clearInterval(checkEngine);
+                try {
+                    // This is the critical connection point
+                    fal.config({ proxyUrl: "/api/fal/proxy" });
+                    status.innerText = "v1.4.9 - ENGINE ONLINE";
+                    status.style.color = "#10b981";
+                } catch (e) {
+                    status.innerText = "v1.4.9 - CONFIG ERROR: CHECK PROXY FILE";
+                    status.style.color = "#f59e0b";
+                }
+            } else {
+                status.innerText = "v1.4.9 - LIBRARY BLOCKED BY CHROME";
+                status.style.color = "#ef4444";
             }
-        }, 500);
+        });
 
-        // Simple UI Logic
+        // UI Logic
         const fileIn = document.getElementById('fileIn');
         fileIn.onchange = (e) => {
             const file = e.target.files[0];
@@ -70,25 +71,21 @@
         async function runRender() {
             const go = document.getElementById('go');
             const aiMsg = document.getElementById('ai-msg');
-            const out = document.getElementById('out');
-            
             go.disabled = true;
             aiMsg.innerHTML = "RENDERING...";
-            
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: document.getElementById('view').src,
-                        prompt: "Modern kitchen photography, marble, 8k photorealistic",
+                        prompt: "Luxury modern kitchen, high-end cabinets, marble, 8k",
                         image_size: "landscape_16_9"
                     }
                 });
-                out.src = res.data.images[0].url;
-                out.classList.remove('hidden');
+                document.getElementById('out').src = res.data.images[0].url;
+                document.getElementById('out').classList.remove('hidden');
                 aiMsg.innerHTML = "SUCCESS";
             } catch (e) {
-                aiMsg.innerHTML = "ERROR: CHECK PROXY CONFIG";
-                console.error(e);
+                aiMsg.innerHTML = "ERROR: CHECK PROXY CONNECTION";
             }
             go.disabled = false;
         }
