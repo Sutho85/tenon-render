@@ -1,59 +1,104 @@
-<div class="min-h-screen bg-slate-950 text-white font-sans selection:bg-emerald-500">
-  
-  <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
-    <div class="text-2xl font-bold tracking-tighter text-emerald-400">TENON <span class="text-white">VISION</span></div>
-    <div class="space-x-8 text-sm font-medium text-slate-400 hidden md:block">
-      <a href="#" class="hover:text-white transition">Features</a>
-      <a href="#" class="hover:text-white transition">Pricing</a>
-      <a href="#" class="hover:text-white transition">Showcase</a>
-    </div>
-    <button class="bg-white text-black px-5 py-2 rounded-full text-sm font-bold hover:bg-emerald-400 transition">Get Started</button>
-  </nav>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TENON VISION | AI Rendering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
+</head>
+<body class="bg-slate-950 text-white font-sans">
 
-  <section class="max-w-5xl mx-auto text-center pt-20 pb-32 px-4">
-    <span class="inline-block py-1 px-3 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold tracking-widest uppercase mb-6">
-      Built for Cabinet Vision & Mozaik Users
-    </span>
-    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-      Your clients don't speak CAD.<br/><span class="text-slate-500">Give them a vision.</span>
-    </h1>
-    <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-      The fastest AI-rendering engine in the cabinetry industry. Zero learning curve. Zero server wait times. 100% emotional impact.
-    </p>
-    <div class="flex flex-col md:flex-row gap-4 justify-center">
-      <button class="bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-4 rounded-xl text-lg transition shadow-xl shadow-emerald-500/20">
-        Start Rendering for Free
-      </button>
-      <button class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-bold px-8 py-4 rounded-xl text-lg transition">
-        Watch 30s Demo
-      </button>
-    </div>
-  </section>
+    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+        <div class="text-2xl font-bold tracking-tighter text-emerald-400 font-mono italic">TENON <span class="text-white">VISION</span></div>
+        <button class="bg-emerald-500 text-black px-6 py-2 rounded-full text-sm font-bold">BETA ACCESS</button>
+    </nav>
 
-  <section class="bg-slate-900/50 py-24 border-y border-slate-800">
-    <div class="max-w-7xl mx-auto px-8 grid md:grid-cols-2 gap-16 items-center">
-      <div>
-        <h2 class="text-3xl font-bold mb-6 italic">"Can I see it in White Oak instead?"</h2>
-        <p class="text-slate-400 leading-relaxed mb-6">
-          The old way meant going back to the office and re-rendering for 2 hours. <br/><br/>
-          With <strong class="text-white">Tenon Vision</strong>, you do it in the meeting. Upload a screenshot, select the material, and close the deal before the coffee gets cold.
-        </p>
-        <ul class="space-y-4">
-          <li class="flex items-center gap-3 text-emerald-400 font-medium">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            No Plugins Required
-          </li>
-          <li class="flex items-center gap-3 text-emerald-400 font-medium">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            Unlimited Monthly Credits
-          </li>
-        </ul>
-      </div>
-      <div class="aspect-video bg-gradient-to-br from-emerald-500/20 to-slate-800 rounded-3xl border border-emerald-500/30 flex items-center justify-center relative overflow-hidden group cursor-pointer">
-         <span class="text-white font-bold text-lg group-hover:scale-110 transition uppercase tracking-widest">Interactive Preview</span>
-         <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition"></div>
-      </div>
-    </div>
-  </section>
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">Upload Your CAD Screenshot</h1>
+            <p class="text-slate-400 italic">"Engineering is for you. Emotion is for them."</p>
+        </div>
 
-</div>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div id="dropzone" class="border-2 border-dashed border-slate-800 rounded-3xl p-12 flex flex-col items-center justify-center bg-slate-900/50 hover:border-emerald-500 transition cursor-pointer">
+                <input type="file" id="fileInput" class="hidden" accept="image/*">
+                <div id="upload-label" class="text-center">
+                    <div class="text-5xl mb-4">📸</div>
+                    <p class="text-lg font-bold">Click to Upload Screenshot</p>
+                    <p class="text-slate-500 text-sm mt-2">Supports Cabinet Vision, Mozaik, SketchUp</p>
+                </div>
+                <img id="preview" class="hidden w-full rounded-xl mt-4 border border-slate-700">
+            </div>
+
+            <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative min-h-[400px]">
+                <div id="status" class="text-slate-500 text-center font-mono uppercase tracking-widest text-sm">
+                    Awaiting Input...
+                </div>
+                <img id="resultImage" class="hidden w-full h-full object-cover rounded-xl shadow-2xl">
+                
+                <button id="renderBtn" class="hidden mt-6 bg-emerald-500 text-black font-bold px-10 py-4 rounded-xl hover:scale-105 transition shadow-lg shadow-emerald-500/20">
+                    GENERATE RENDER
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // CONFIGURATION: THIS USES YOUR FAL_KEY FROM VERCEL
+        const fileInput = document.getElementById('fileInput');
+        const dropzone = document.getElementById('dropzone');
+        const preview = document.getElementById('preview');
+        const renderBtn = document.getElementById('renderBtn');
+        const resultImage = document.getElementById('resultImage');
+        const status = document.getElementById('status');
+        let selectedFile = null;
+
+        // 1. Handle File Selection
+        dropzone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.src = event.target.result;
+                    preview.classList.remove('hidden');
+                    document.getElementById('upload-label').classList.add('hidden');
+                    renderBtn.classList.remove('hidden');
+                }
+                reader.readAsDataURL(selectedFile);
+            }
+        };
+
+        // 2. The Render Magic
+        renderBtn.onclick = async () => {
+            renderBtn.disabled = true;
+            status.innerHTML = "🎨 MIXING MATERIALS... (30s)";
+            renderBtn.innerHTML = "PROCESSING...";
+
+            try {
+                // This connects to the Fal.ai engine
+                // Note: You must have FAL_KEY set in Vercel for this to work
+                const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                    input: {
+                        control_image_url: preview.src,
+                        prompt: "Ultra-realistic interior, high-end kitchen cabinetry, warm lighting, architectural photography style, 8k, photorealistic wood grain",
+                        image_size: "landscape_16_9",
+                        controlnet_conditioning_scale: 0.95
+                    },
+                });
+
+                resultImage.src = result.data.images[0].url;
+                resultImage.classList.remove('hidden');
+                status.classList.add('hidden');
+                renderBtn.innerHTML = "DONE! (Try Another)";
+                renderBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                status.innerHTML = "❌ ERROR: CHECK API KEY IN VERCEL SETTINGS";
+                renderBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
