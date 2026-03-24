@@ -7,130 +7,115 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
     <style>
-        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.2); }
-        input[type="file"]::file-selector-button {
-            background: #10b981;
-            color: black;
-            font-weight: 900;
-            padding: 0.8rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
+        .emerald-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.15); }
     </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen font-sans">
+<body class="bg-slate-950 text-white font-sans min-h-screen">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.4 FORCE</div>
-
-    <nav class="p-8 max-w-7xl mx-auto flex justify-between">
-        <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
-        <div id="debug-log" class="text-[9px] text-slate-600 font-mono self-center">System Initialized...</div>
+    <nav class="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+        <div class="text-2xl font-black tracking-tighter text-emerald-400 italic">TENON <span class="text-white font-normal uppercase">VISION</span></div>
+        <span class="text-slate-500 text-[10px] font-mono uppercase tracking-[0.3em]">v1.1.6 Restored</span>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-4">
-        <div class="grid lg:grid-cols-2 gap-8">
+    <main class="max-w-6xl mx-auto px-6 pt-10 pb-24 text-center">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tighter">CAD to <span class="text-emerald-400">Cinematic.</span></h1>
+        <p class="text-slate-400 text-lg mb-12 italic leading-relaxed">The professional rendering engine for Cabinet Vision & Mozaik.</p>
+
+        <div class="grid lg:grid-cols-2 gap-8 text-left">
             
-            <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2rem] p-8">
-                <h2 class="text-lg font-bold mb-4 uppercase tracking-tight">1. Upload CAD Image</h2>
+            <div id="dropzone" onclick="document.getElementById('fileInput').click()" class="relative border-2 border-dashed border-slate-800 rounded-[2.5rem] p-12 bg-slate-900/40 flex flex-col items-center justify-center min-h-[450px] cursor-pointer hover:border-emerald-500/40 transition-all overflow-hidden">
+                <input type="file" id="fileInput" style="display:none;" accept="image/*">
                 
-                <div class="space-y-4">
-                    <input type="file" id="fileIn" class="w-full text-xs text-slate-500" accept="image/*">
-                    <button id="forceBtn" class="hidden w-full bg-slate-800 text-white text-xs py-2 rounded font-bold border border-slate-700 hover:bg-slate-700">IF PREVIEW FAILS: CLICK TO FORCE LOAD</button>
+                <div id="upload-content" class="flex flex-col items-center space-y-4">
+                    <div class="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center">
+                        <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold uppercase tracking-tight">Upload CAD Screen</p>
+                        <p class="text-slate-500 mt-2 font-mono text-xs uppercase tracking-widest">Select your screenshot</p>
+                    </div>
                 </div>
 
-                <div id="preview-container" class="mt-6 border-t border-slate-800 pt-6 min-h-[300px] flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
-                    <p id="placeholder" class="text-slate-800 font-mono text-[10px] uppercase">Awaiting Selection</p>
-                    <img id="view" class="hidden w-full h-auto max-h-[400px] object-contain">
-                </div>
+                <img id="preview" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-[2.5rem] bg-slate-950">
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 flex flex-col items-center justify-center min-h-[450px] emerald-glow">
-                <div id="msg" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-6">Engine: Ready</div>
+            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[450px] emerald-glow">
+                <div id="status" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">System: Standby</div>
                 
-                <img id="out" class="hidden w-full rounded-xl shadow-2xl border border-emerald-500/20 mb-6">
+                <img id="resultImage" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
                 
-                <div id="controls" class="hidden w-full space-y-4">
-                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-bold">
-                        <option value="Modern luxury kitchen, white marble, warm lighting">Modern White Marble</option>
-                        <option value="Industrial kitchen, dark oak, black hardware">Industrial Dark Oak</option>
-                    </select>
-                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-5 rounded-xl hover:bg-emerald-400 transition-all uppercase text-lg">
-                        2. Generate Vision
+                <div id="controls" class="hidden w-full space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Select Material Finish</label>
+                        <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 font-bold">
+                            <option value="Modern Kitchen, high-gloss white cabinets, marble counters, warm architectural lighting">Modern White & Marble</option>
+                            <option value="Industrial style kitchen, aged oak wood cabinetry, black matte hardware, moody cinematic lighting">Industrial Aged Oak</option>
+                            <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural light">Hampton Shaker</option>
+                        </select>
+                    </div>
+                    <button id="renderBtn" class="w-full bg-emerald-500 text-black font-black py-6 rounded-2xl hover:bg-emerald-400 transition-all uppercase tracking-tighter text-xl shadow-lg shadow-emerald-500/20">
+                        Generate Vision
                     </button>
                 </div>
             </div>
-
         </div>
     </main>
 
     <script>
+        // Use the Vercel Proxy
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
-        const fileIn = document.getElementById('fileIn');
-        const view = document.getElementById('view');
-        const msg = document.getElementById('msg');
-        const out = document.getElementById('out');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const renderBtn = document.getElementById('renderBtn');
+        const resultImage = document.getElementById('resultImage');
+        const status = document.getElementById('status');
         const controls = document.getElementById('controls');
-        const go = document.getElementById('go');
-        const placeholder = document.getElementById('placeholder');
-        const forceBtn = document.getElementById('forceBtn');
-        const debugLog = document.getElementById('debug-log');
+        const styleSelect = document.getElementById('styleSelect');
+        const uploadContent = document.getElementById('upload-content');
 
-        function log(text) { debugLog.innerHTML = text; console.log(text); }
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.src = event.target.result;
+                    preview.classList.remove('hidden');
+                    uploadContent.classList.add('hidden');
+                    controls.classList.remove('hidden');
+                    status.innerHTML = "System: Image Ready";
+                    status.style.color = "#10b981";
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
-        function handleFile(file) {
-            if (!file) return;
-            log("File selected: " + file.name);
-            forceBtn.classList.remove('hidden');
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                log("FileReader Success. Applying to Image...");
-                view.src = e.target.result;
-                view.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                controls.classList.remove('hidden');
-                msg.innerHTML = "Engine: Image Ready";
-                msg.style.color = "#10b981";
-            };
-            reader.onerror = function() { log("FileReader Error!"); };
-            reader.readAsDataURL(file);
-        }
+        renderBtn.onclick = async () => {
+            renderBtn.disabled = true;
+            renderBtn.innerHTML = "RENDERING...";
+            status.innerHTML = "System: Mixing Materials... (20s)";
 
-        fileIn.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        
-        // Manual Force Button
-        forceBtn.onclick = () => {
-            log("Force Load Triggered...");
-            handleFile(fileIn.files[0]);
-        };
-
-        go.onclick = async function() {
-            go.disabled = true;
-            go.innerHTML = "RENDERING...";
-            msg.innerHTML = "Engine: Processing... (20s)";
-            
             try {
-                const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
-                        control_image_url: view.src,
-                        prompt: `8k kitchen render, ${document.getElementById('style').value}, photorealistic`,
+                        control_image_url: preview.src,
+                        prompt: `High-end architectural photography, ${styleSelect.value}, photorealistic, 8k, masterfully lit`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
-                    }
+                    },
                 });
-                out.src = res.data.images[0].url;
-                out.classList.remove('hidden');
-                msg.innerHTML = "Engine: Success";
-                go.innerHTML = "NEW RENDER";
-            } catch (e) {
-                log("AI Error: " + e.message);
-                msg.innerHTML = "Error: Check API Key";
-                go.innerHTML = "RETRY";
+
+                resultImage.src = result.data.images[0].url;
+                resultImage.classList.remove('hidden');
+                status.innerHTML = "System: Success";
+                renderBtn.innerHTML = "GENERATE AGAIN";
+                renderBtn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                status.innerHTML = "System Error: Check API Connection";
+                renderBtn.innerHTML = "RETRY";
+                renderBtn.disabled = false;
             }
-            go.disabled = false;
         };
     </script>
 </body>
