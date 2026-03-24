@@ -1,2 +1,2 @@
-import { createPageRouterHandler } from "@fal-ai/server-proxy/nextjs";
-export default createPageRouterHandler();
+import { route } from "@fal-ai/server-proxy/nextjs";
+export const POST = route;
