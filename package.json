@@ -1,0 +1,7 @@
+{
+  "name": "tenon-vision",
+  "version": "1.3.3",
+  "dependencies": {
+    "@fal-ai/client": "^1.0.1"
+  }
+}
