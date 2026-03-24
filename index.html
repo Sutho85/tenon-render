@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.3.8</title>
+    <title>TENON VISION v1.4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
@@ -11,46 +11,39 @@
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.8 - INTERNAL ENGINE</p>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.4.0 - DATA TUNNEL</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <input type="file" id="fileIn" accept="image/*" class="block w-full text-sm text-slate-500 file:bg-emerald-500 file:text-black file:px-4 file:py-2 file:rounded-lg file:border-0 file:font-bold cursor-pointer">
         </div>
 
-        <div class="bg-black rounded-2xl border border-slate-800 p-2 min-h-[200px] flex items-center justify-center overflow-hidden">
+        <div class="bg-black rounded-2xl border border-slate-800 p-2 min-h-[200px] flex items-center justify-center">
             <img id="view" class="hidden w-full h-auto rounded-lg">
             <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting Image...</p>
         </div>
 
         <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
-            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm shadow-lg shadow-emerald-500/20">Generate Render</button>
-            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
+            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Vision</button>
+            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Ready</div>
             <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
-    <script>
-        (function() {
-            const statusBar = document.getElementById('status-bar');
-            const script = document.createElement('script');
-            // Using the 'Polyfill' mirror which is rarely on block-lists
-            script.src = "https://cdn.jsdelivr.net/npm/@fal-ai/client@1.0.1/dist/bundle.min.js";
-            
-            script.onload = () => {
-                fal.config({ proxyUrl: "/api/fal/proxy" });
-                statusBar.innerText = "v1.3.8 - ENGINE ONLINE";
-                statusBar.style.color = "#10b981";
-            };
-            
-            script.onerror = () => {
-                statusBar.innerText = "CRITICAL BLOCK - TRY TURNING OFF AD-BLOCKERS";
-                statusBar.style.color = "#ef4444";
-            };
-            
-            document.head.appendChild(script);
-        })();
+    <script type="module">
+        // Using an 'unblockable' ESM import method
+        import('https://esm.sh/@fal-ai/client@1.0.1').then(module => {
+            window.fal = module;
+            window.fal.config({ proxyUrl: "/api/fal/proxy" });
+            const status = document.getElementById('status-bar');
+            status.innerText = "v1.4.0 - ENGINE CONNECTED";
+            status.style.color = "#10b981";
+        }).catch(err => {
+            document.getElementById('status-bar').innerText = "CONNECTION FAILED - HARDWARE BLOCK";
+        });
+    </script>
 
+    <script>
         const fileIn = document.getElementById('fileIn');
         const view = document.getElementById('view');
         const go = document.getElementById('go');
@@ -72,28 +65,22 @@
         };
 
         async function runRender() {
-            if (typeof fal === 'undefined') {
-                alert("AI Engine is still being blocked by your browser extensions.");
-                return;
-            }
-            
+            if (!window.fal) return alert("AI Engine not yet initialized.");
             go.disabled = true;
             aiMsg.innerHTML = "SYSTEM: RENDERING...";
-            
             try {
-                const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                const res = await window.fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: "High-end kitchen photo, modern cabinets, marble island, 8k",
+                        prompt: "Modern kitchen photography, 8k",
                         image_size: "landscape_16_9",
-                        controlnet_conditioning_scale: 0.95
                     }
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
                 aiMsg.innerHTML = "SUCCESS";
             } catch (e) {
-                aiMsg.innerHTML = "ERROR: CHECK VERCEL API KEY";
+                aiMsg.innerHTML = "ERROR: CHECK API KEY";
             }
             go.disabled = false;
         }
