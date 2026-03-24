@@ -7,64 +7,63 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
     <style>
-        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.1); }
-        /* Style the actual file input to look like a button */
+        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.15); }
+        /* Professional styling for the native upload button */
         input[type="file"]::file-selector-button {
             background: #10b981;
             color: black;
             font-weight: 900;
-            padding: 1.25rem 2rem;
-            border-radius: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
             border: none;
             cursor: pointer;
-            margin-right: 20px;
+            margin-right: 15px;
             text-transform: uppercase;
+            font-size: 0.75rem;
             transition: all 0.2s;
         }
-        input[type="file"]::file-selector-button:hover {
-            background: #34d399;
-        }
+        input[type="file"]::file-selector-button:hover { background: #34d399; transform: translateY(-1px); }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.1 STANDARD</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.2 VISION</div>
 
     <nav class="p-8 max-w-7xl mx-auto flex justify-between items-center">
         <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-6 py-12">
-        <div class="grid lg:grid-cols-2 gap-16 items-start">
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
             
-            <div class="space-y-8">
-                <div>
-                    <h1 class="text-7xl font-black tracking-tighter leading-[0.9] mb-4 uppercase">CAD TO <span class="text-emerald-500">REAL.</span></h1>
-                    <p class="text-slate-400 text-lg italic">The professional rendering engine for Cabinet Vision.</p>
-                </div>
-
-                <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-10">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-4 font-bold">Step 1: Upload Screenshot</p>
+            <div class="space-y-6">
+                <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-8">
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-4 font-bold">1. Upload CAD Screenshot</p>
                     
-                    <input type="file" id="fileIn" class="w-full text-sm text-slate-400 font-mono" accept="image/*">
+                    <input type="file" id="fileIn" class="w-full text-xs text-slate-400 font-mono" accept="image/*">
 
-                    <div id="preview-container" class="hidden w-full border-t border-slate-800 mt-8 pt-8">
-                        <img id="view" class="w-full rounded-xl border border-slate-700 shadow-2xl max-h-[400px] object-contain">
+                    <div id="preview-area" class="mt-8 border-t border-slate-800 pt-8 flex flex-col items-center justify-center min-h-[300px]">
+                        <p id="preview-placeholder" class="text-slate-700 font-mono text-xs uppercase tracking-widest">Preview Window</p>
+                        <img id="view" class="hidden w-full rounded-2xl border border-slate-700 shadow-2xl max-h-[400px] object-contain">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 flex flex-col items-center justify-center min-h-[500px] emerald-glow">
+            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[500px] emerald-glow">
                 <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">System: Standby</div>
                 
                 <img id="out" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
                 
+                <div id="out-placeholder" class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-8">
+                    <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                
                 <div id="controls" class="hidden w-full space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Render Style</label>
-                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 text-white font-bold">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1 text-center block w-full">Choose Interior Style</label>
+                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 text-white font-bold text-center">
                             <option value="Modern luxury kitchen, white marble countertops, high-gloss white cabinetry, warm architectural lighting">Modern White Marble</option>
-                            <option value="Industrial kitchen, aged oak wood cabinets, black matte hardware, moody cinematic lighting">Industrial Aged Oak</option>
+                            <option value="Industrial style kitchen, aged oak wood cabinetry, black matte hardware, moody lighting">Industrial Aged Oak</option>
                             <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural morning light">Hampton Shaker</option>
                         </select>
                     </div>
@@ -87,7 +86,8 @@
         const controls = document.getElementById('controls');
         const go = document.getElementById('go');
         const style = document.getElementById('style');
-        const previewContainer = document.getElementById('preview-container');
+        const placeholder = document.getElementById('preview-placeholder');
+        const outPlaceholder = document.getElementById('out-placeholder');
 
         fileIn.onchange = function(e) {
             const file = e.target.files[0];
@@ -95,7 +95,8 @@
                 const reader = new FileReader();
                 reader.onload = function(ev) {
                     view.src = ev.target.result;
-                    previewContainer.classList.remove('hidden');
+                    view.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
                     controls.classList.remove('hidden');
                     msg.innerHTML = "System: Image Loaded";
                     msg.classList.replace('text-slate-600', 'text-emerald-500');
@@ -108,12 +109,13 @@
             go.disabled = true;
             go.innerHTML = "RENDERING...";
             msg.innerHTML = "System: Processing... (20s)";
+            outPlaceholder.classList.add('hidden');
             
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `High-end architectural photography, ${style.value}, 8k, photorealistic`,
+                        prompt: `Professional high-end architectural photo, kitchen interior, ${style.value}, 8k resolution, photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
@@ -123,8 +125,10 @@
                 msg.innerHTML = "System: Success";
                 go.innerHTML = "GENERATE AGAIN";
             } catch (e) {
-                msg.innerHTML = "System Error: Check Vercel Key";
+                console.error(e);
+                msg.innerHTML = "System Error: Check API Key";
                 go.innerHTML = "RETRY";
+                outPlaceholder.classList.remove('hidden');
             }
             go.disabled = false;
         };
