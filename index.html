@@ -12,49 +12,51 @@
             background: #10b981;
             color: black;
             font-weight: 900;
-            padding: 1rem 2rem;
-            border-radius: 0.75rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
             border: none;
             cursor: pointer;
             text-transform: uppercase;
-            transition: 0.2s;
         }
-        input[type="file"]::file-selector-button:hover { background: #34d399; }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.3 DEBUG</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.4 FORCE</div>
 
-    <nav class="p-8 max-w-7xl mx-auto">
+    <nav class="p-8 max-w-7xl mx-auto flex justify-between">
         <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
+        <div id="debug-log" class="text-[9px] text-slate-600 font-mono self-center">System Initialized...</div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-12">
-        <div class="grid lg:grid-cols-2 gap-12">
+    <main class="max-w-6xl mx-auto px-6 py-4">
+        <div class="grid lg:grid-cols-2 gap-8">
             
-            <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-10">
-                <h2 class="text-xl font-bold mb-6">1. Select CAD Drawing</h2>
+            <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2rem] p-8">
+                <h2 class="text-lg font-bold mb-4 uppercase tracking-tight">1. Upload CAD Image</h2>
                 
-                <input type="file" id="fileIn" class="w-full text-sm text-slate-500 mb-8" accept="image/*">
+                <div class="space-y-4">
+                    <input type="file" id="fileIn" class="w-full text-xs text-slate-500" accept="image/*">
+                    <button id="forceBtn" class="hidden w-full bg-slate-800 text-white text-xs py-2 rounded font-bold border border-slate-700 hover:bg-slate-700">IF PREVIEW FAILS: CLICK TO FORCE LOAD</button>
+                </div>
 
-                <div id="preview-box" class="border-t border-slate-800 pt-8 min-h-[300px] flex items-center justify-center bg-black/20 rounded-2xl">
-                    <p id="placeholder" class="text-slate-800 font-mono text-xs uppercase">Preview Area</p>
-                    <img id="view" class="hidden w-full h-auto rounded-xl shadow-2xl border border-slate-700">
+                <div id="preview-container" class="mt-6 border-t border-slate-800 pt-6 min-h-[300px] flex items-center justify-center bg-black/40 rounded-xl overflow-hidden">
+                    <p id="placeholder" class="text-slate-800 font-mono text-[10px] uppercase">Awaiting Selection</p>
+                    <img id="view" class="hidden w-full h-auto max-h-[400px] object-contain">
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[500px] emerald-glow">
-                <div id="msg" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-8 text-center">Engine: Standby</div>
+            <div class="bg-slate-900 border border-slate-800 rounded-[2rem] p-8 flex flex-col items-center justify-center min-h-[450px] emerald-glow">
+                <div id="msg" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-6">Engine: Ready</div>
                 
-                <img id="out" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
+                <img id="out" class="hidden w-full rounded-xl shadow-2xl border border-emerald-500/20 mb-6">
                 
-                <div id="controls" class="hidden w-full space-y-6">
-                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm font-bold text-center">
-                        <option value="Modern luxury kitchen, white marble countertops, warm lighting">Modern White Marble</option>
-                        <option value="Industrial kitchen, aged oak wood, black hardware">Industrial Aged Oak</option>
+                <div id="controls" class="hidden w-full space-y-4">
+                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-bold">
+                        <option value="Modern luxury kitchen, white marble, warm lighting">Modern White Marble</option>
+                        <option value="Industrial kitchen, dark oak, black hardware">Industrial Dark Oak</option>
                     </select>
-                    <button id="go" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase text-xl shadow-lg">
+                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-5 rounded-xl hover:bg-emerald-400 transition-all uppercase text-lg">
                         2. Generate Vision
                     </button>
                 </div>
@@ -73,25 +75,37 @@
         const controls = document.getElementById('controls');
         const go = document.getElementById('go');
         const placeholder = document.getElementById('placeholder');
+        const forceBtn = document.getElementById('forceBtn');
+        const debugLog = document.getElementById('debug-log');
 
-        fileIn.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // This alert proves the code is actually running
-                console.log("File detected: " + file.name);
-                
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    view.src = ev.target.result;
-                    view.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                    controls.classList.remove('hidden');
-                    msg.innerHTML = "Engine: Image Ready";
-                    msg.style.color = "#10b981";
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        function log(text) { debugLog.innerHTML = text; console.log(text); }
+
+        function handleFile(file) {
+            if (!file) return;
+            log("File selected: " + file.name);
+            forceBtn.classList.remove('hidden');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                log("FileReader Success. Applying to Image...");
+                view.src = e.target.result;
+                view.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                controls.classList.remove('hidden');
+                msg.innerHTML = "Engine: Image Ready";
+                msg.style.color = "#10b981";
+            };
+            reader.onerror = function() { log("FileReader Error!"); };
+            reader.readAsDataURL(file);
+        }
+
+        fileIn.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        
+        // Manual Force Button
+        forceBtn.onclick = () => {
+            log("Force Load Triggered...");
+            handleFile(fileIn.files[0]);
+        };
 
         go.onclick = async function() {
             go.disabled = true;
@@ -102,7 +116,7 @@
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `High-end kitchen photo, ${document.getElementById('style').value}, 8k photorealistic`,
+                        prompt: `8k kitchen render, ${document.getElementById('style').value}, photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
@@ -112,6 +126,7 @@
                 msg.innerHTML = "Engine: Success";
                 go.innerHTML = "NEW RENDER";
             } catch (e) {
+                log("AI Error: " + e.message);
                 msg.innerHTML = "Error: Check API Key";
                 go.innerHTML = "RETRY";
             }
