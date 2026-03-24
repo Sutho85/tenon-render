@@ -2,112 +2,108 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION | AI Rendering</title>
+    <title>TENON VISION v1.2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
 </head>
-<body class="bg-slate-950 text-white p-10 font-sans">
+<body class="bg-black text-white p-10 font-mono">
 
-    <div class="max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-12">
-            <h1 class="text-3xl font-black text-emerald-400 italic">TENON <span class="text-white">VISION</span></h1>
-            <div id="debug" class="text-[10px] font-mono text-slate-600 bg-slate-900 px-3 py-1 rounded">v1.1.9 - STABLE LOAD</div>
-        </header>
+    <div id="debug-trigger" class="bg-slate-900 p-4 border border-emerald-500/50 mb-10 rounded text-center">
+        STATUS: <span id="log-text" class="text-emerald-400">WAITING FOR FILE...</span>
+    </div>
 
-        <div class="grid lg:grid-cols-2 gap-12">
+    <div class="max-w-6xl mx-auto grid grid-cols-2 gap-10">
+        
+        <div class="bg-zinc-900 p-10 rounded-3xl border border-zinc-800">
+            <h1 class="text-xl font-bold mb-6 text-white uppercase">1. Select CAD Screenshot</h1>
             
-            <div class="space-y-6">
-                <div class="bg-slate-900 border-2 border-slate-800 p-8 rounded-[2rem]">
-                    <h2 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-6">1. Select CAD File</h2>
-                    
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 cursor-pointer">
+            <input type="file" id="fileIn" class="mb-10 block w-full text-sm text-zinc-400 file:bg-emerald-500 file:text-black file:px-6 file:py-3 file:rounded-full file:border-0 file:font-black cursor-pointer">
 
-                    <div id="preview-frame" class="mt-8 border-t border-slate-800 pt-8 flex items-center justify-center min-h-[300px] bg-black/20 rounded-2xl overflow-hidden">
-                        <p id="placeholder-text" class="text-slate-800 font-mono text-[10px] uppercase">Preview Standby</p>
-                        <img id="preview" class="hidden w-full h-auto max-h-[400px] object-contain shadow-2xl">
-                    </div>
-                </div>
+            <div class="border-2 border-zinc-800 rounded-2xl p-4 bg-black min-h-[400px]">
+                <p id="wait-text" class="text-zinc-800 text-center mt-40">IMAGE WILL APPEAR HERE</p>
+                <img id="view" style="display:none;" class="w-full h-auto rounded-lg">
             </div>
-
-            <div class="bg-slate-900 border border-slate-800 p-10 rounded-[2rem] flex flex-col items-center justify-center min-h-[500px]">
-                <div id="status" class="text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">Engine: Awaiting Image</div>
-                
-                <img id="resultImage" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
-
-                <div id="controls" class="hidden w-full space-y-6">
-                    <select id="styleSelect" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm font-bold text-center">
-                        <option value="Modern luxury kitchen, white marble, warm lighting">Modern White & Marble</option>
-                        <option value="Industrial kitchen, dark oak, black hardware">Industrial Dark Oak</option>
-                        <option value="Hampton style, white shaker, brass handles">Hampton Shaker</option>
-                    </select>
-                    <button id="renderBtn" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase text-xl">Generate Render</button>
-                </div>
-            </div>
-
         </div>
+
+        <div class="bg-zinc-900 p-10 rounded-3xl border border-zinc-800">
+            <h2 class="text-xl font-bold mb-6 uppercase">2. Render</h2>
+            
+            <div id="controls" style="display:none;" class="space-y-6">
+                <select id="style" class="w-full bg-zinc-800 border border-zinc-700 p-5 rounded-xl text-white font-bold">
+                    <option value="Modern luxury kitchen, white marble, high-end lighting">Modern White Marble</option>
+                    <option value="Industrial kitchen, aged oak cabinets, black hardware">Industrial Aged Oak</option>
+                </select>
+                <button id="go" onclick="runAI()" class="w-full bg-white text-black font-black py-6 rounded-xl hover:bg-emerald-400 transition-all text-xl uppercase">Generate Vision</button>
+            </div>
+
+            <div id="ai-status" class="mt-10 text-center text-xs text-zinc-500 uppercase tracking-widest">Engine: Standby</div>
+            <img id="out" style="display:none;" class="mt-6 w-full rounded-xl border border-emerald-500/20 shadow-2xl">
+        </div>
+
     </div>
 
     <script>
-        // Setup the Proxy Connection
+        // Setup Proxy
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
-        const fileInput = document.getElementById('fileInput');
-        const preview = document.getElementById('preview');
-        const placeholder = document.getElementById('placeholder-text');
-        const status = document.getElementById('status');
+        const fileIn = document.getElementById('fileIn');
+        const view = document.getElementById('view');
+        const log = document.getElementById('log-text');
+        const wait = document.getElementById('wait-text');
         const controls = document.getElementById('controls');
-        const renderBtn = document.getElementById('renderBtn');
-        const resultImage = document.getElementById('resultImage');
-        const debug = document.getElementById('debug');
 
-        // FORCE THE PREVIEW (No matter what)
-        fileInput.onchange = function(e) {
+        // DIRECT LISTENER
+        fileIn.onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
-                debug.innerHTML = "LOG: File Detected - " + file.name;
-                
-                // Using a URL Object instead of a FileReader - this is more modern and harder to block
-                const objectURL = URL.createObjectURL(file);
-                
-                preview.src = objectURL;
-                preview.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                controls.classList.remove('hidden');
-                
-                status.innerHTML = "SYSTEM: READY";
-                status.style.color = "#10b981";
-                debug.innerHTML = "LOG: Image Rendered to Preview";
+                log.innerText = "FILE DETECTED! LOADING PREVIEW...";
+                console.log("File loaded:", file.name);
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    log.innerText = "SUCCESS: IMAGE LOADED TO BROWSER";
+                    view.src = event.target.result;
+                    view.style.display = 'block';
+                    wait.style.display = 'none';
+                    controls.style.display = 'block';
+                };
+                reader.onerror = function() {
+                    log.innerText = "ERROR: BROWSER BLOCKED FILE READER";
+                };
+                reader.readAsDataURL(file);
             }
         };
 
-        renderBtn.onclick = async () => {
-            renderBtn.disabled = true;
-            renderBtn.innerHTML = "RENDERING...";
-            status.innerHTML = "SYSTEM: PROCESSING AI...";
+        async function runAI() {
+            const go = document.getElementById('go');
+            const aiStatus = document.getElementById('ai-status');
+            const out = document.getElementById('out');
+            const style = document.getElementById('style');
+
+            go.disabled = true;
+            go.innerText = "PROCESSING...";
+            aiStatus.innerText = "ENGINE: RENDERING MATERIALS (20s)...";
 
             try {
-                const result = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
-                        control_image_url: preview.src, // Uses the same preview link
-                        prompt: `High-end architectural photography, ${document.getElementById('styleSelect').value}, photorealistic, 8k`,
+                        control_image_url: view.src,
+                        prompt: `Architectural photography, kitchen, ${style.value}, 8k photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
-                    },
+                    }
                 });
-
-                resultImage.src = result.data.images[0].url;
-                resultImage.classList.remove('hidden');
-                status.innerHTML = "SYSTEM: SUCCESS";
-                renderBtn.innerHTML = "GENERATE AGAIN";
-                renderBtn.disabled = false;
+                out.src = res.data.images[0].url;
+                out.style.display = 'block';
+                aiStatus.innerText = "ENGINE: SUCCESS";
+                go.innerText = "NEW RENDER";
             } catch (err) {
                 console.error(err);
-                status.innerHTML = "ERROR: CHECK API KEY";
-                renderBtn.innerHTML = "RETRY";
-                renderBtn.disabled = false;
+                aiStatus.innerText = "ERROR: CHECK API CONNECTION";
+                go.innerText = "RETRY";
             }
-        };
+            go.disabled = false;
+        }
     </script>
 </body>
 </html>
