@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.2.7</title>
+    <title>TENON VISION v1.3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fal-client/1.0.1/bundle.min.js"></script>
 </head>
-<body class="bg-slate-950 text-white p-10 font-sans">
+<body class="bg-slate-950 text-white p-6 font-sans">
 
-    <div class="max-w-xl mx-auto space-y-8">
-        <header class="text-center">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.2.7 - BYPASS MODE</p>
+    <div class="max-w-xl mx-auto space-y-6">
+        <header class="text-center border-b border-slate-800 pb-4">
+            <h1 class="text-2xl font-black text-emerald-400 uppercase italic tracking-tighter">Tenon Vision</h1>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.3.0 - NATIVE BUNDLE</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
             <input type="file" id="fileIn" accept="image/*" class="block w-full text-sm text-slate-500 file:bg-emerald-500 file:text-black file:px-4 file:py-2 file:rounded-lg file:border-0 file:font-bold cursor-pointer">
         </div>
 
-        <div class="bg-black rounded-2xl border border-slate-800 p-4 min-h-[200px] flex items-center justify-center overflow-hidden">
-            <img id="view" class="hidden w-full h-auto rounded-lg shadow-2xl">
+        <div class="bg-black rounded-2xl border border-slate-800 p-2 min-h-[200px] flex items-center justify-center overflow-hidden">
+            <img id="view" class="hidden w-full h-auto rounded-lg">
             <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting CAD Image...</p>
         </div>
 
@@ -29,31 +28,34 @@
                 <option value="Modern luxury kitchen, white marble, architectural lighting">Modern White Marble</option>
                 <option value="Industrial kitchen, aged oak, black hardware">Industrial Aged Oak</option>
             </select>
-            <button id="go" onclick="runRender()" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-500 transition-all uppercase text-sm">Generate AI Vision</button>
-            <div id="ai-msg" class="text-center text-[10px] font-mono text-slate-500 uppercase mt-4 italic">Engine Standby</div>
+            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm shadow-lg shadow-emerald-500/20">Generate Render</button>
+            <div id="ai-msg" class="text-center text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
             <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20 shadow-2xl">
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import * as fal from "/node_modules/@fal-ai/client/dist/bundle.min.js";
+
         const statusBar = document.getElementById('status-bar');
+        
+        // Initialize
+        try {
+            fal.config({ proxyUrl: "/api/fal/proxy" });
+            window.fal = fal; // Make it available to the button
+            statusBar.innerText = "v1.3.0 - ENGINE ATTACHED";
+            statusBar.style.color = "#10b981";
+        } catch (e) {
+            statusBar.innerText = "NATIVE LOAD ERROR";
+            statusBar.style.color = "#ef4444";
+        }
+    </script>
+
+    <script>
+        // UI Logic stays the same
         const fileIn = document.getElementById('fileIn');
         const view = document.getElementById('view');
-        const placeholder = document.getElementById('placeholder');
         const controls = document.getElementById('controls');
-
-        // Check for the library immediately
-        function checkLibrary() {
-            if (typeof fal !== 'undefined') {
-                fal.config({ proxyUrl: "/api/fal/proxy" });
-                statusBar.innerText = "v1.2.7 - ENGINE ATTACHED";
-                statusBar.style.color = "#10b981";
-            } else {
-                statusBar.innerText = "RETRYING CONNECTION...";
-                setTimeout(checkLibrary, 2000); // Try again in 2 seconds
-            }
-        }
-        checkLibrary();
 
         fileIn.onchange = (e) => {
             const file = e.target.files[0];
@@ -62,7 +64,7 @@
                 reader.onload = (ev) => {
                     view.src = ev.target.result;
                     view.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
+                    document.getElementById('placeholder').classList.add('hidden');
                     controls.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
@@ -74,19 +76,14 @@
             const aiMsg = document.getElementById('ai-msg');
             const out = document.getElementById('out');
 
-            if (typeof fal === 'undefined') {
-                alert("The AI library is still being blocked by your browser. Try turning off Ad-Blockers or using a different browser (like Firefox or Chrome).");
-                return;
-            }
-
             go.disabled = true;
-            aiMsg.innerHTML = "System: Sending to AI...";
+            aiMsg.innerHTML = "Processing...";
 
             try {
-                const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
+                const res = await window.fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `8k kitchen render, ${document.getElementById('style').value}, photorealistic`,
+                        prompt: `High-end kitchen photo, ${document.getElementById('style').value}, 8k`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
@@ -95,7 +92,7 @@
                 out.classList.remove('hidden');
                 aiMsg.innerHTML = "Success!";
             } catch (e) {
-                aiMsg.innerHTML = "Error: Check Vercel API Key";
+                aiMsg.innerHTML = "Error: Connection Failed";
             }
             go.disabled = false;
         }
