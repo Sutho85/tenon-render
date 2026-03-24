@@ -6,98 +6,82 @@
     <title>TENON VISION | AI Rendering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
-    <style>
-        .emerald-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.15); }
-        /* The invisible clickable layer */
-        #fileIn {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-            z-index: 50;
-        }
-        /* When an image is loaded, we hide the click-layer so we can see the buttons */
-        .loaded #fileIn { display: none; }
-    </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.0.8 READY</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.0.9 SOLID</div>
 
     <nav class="p-8 max-w-7xl mx-auto flex justify-between">
-        <div class="text-2xl font-black italic text-emerald-400 tracking-tighter">TENON <span class="text-white font-normal">VISION</span></div>
+        <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-6 py-12 text-center">
-        <h1 class="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight">CAD to <span class="text-emerald-400">Reality.</span></h1>
-        <p class="text-slate-400 mb-12 italic leading-relaxed">The professional rendering engine for Cabinet Vision & Mozaik.</p>
-
-        <div id="app-container" class="grid md:grid-cols-2 gap-8 text-left">
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
             
-            <div id="box-container" class="relative border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/50 flex flex-col items-center justify-center min-h-[400px] hover:border-emerald-500/30 transition-all overflow-hidden">
+            <div class="space-y-6">
+                <h1 class="text-6xl font-extrabold tracking-tighter leading-none">CAD to <span class="text-emerald-400">REALITY.</span></h1>
+                <p class="text-slate-400 text-lg leading-relaxed italic">Upload your Cabinet Vision or Mozaik screenshot. Close the deal with a cinematic render.</p>
                 
-                <input type="file" id="fileIn" accept="image/*">
-                
-                <div id="prompt-text" class="flex flex-col items-center">
-                    <div class="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
-                    <p class="text-xl font-bold">Click to Upload</p>
-                    <p class="text-slate-500 text-sm mt-2 font-mono uppercase tracking-widest">Select Drawing</p>
+                <div id="upload-zone" class="border-2 border-dashed border-slate-800 rounded-3xl p-8 bg-slate-900/50 flex flex-col items-center justify-center min-h-[300px]">
+                    <input type="file" id="fileIn" class="hidden" accept="image/*">
+                    
+                    <button id="clickBtn" class="bg-emerald-500 text-black font-black px-8 py-4 rounded-2xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        SELECT CAD IMAGE
+                    </button>
+                    <p class="text-slate-500 text-xs mt-4 font-mono">JPG, PNG, OR WEBP SCREENSHOTS</p>
+                    
+                    <img id="view" class="hidden mt-6 w-full max-h-[300px] object-contain rounded-xl border border-slate-700">
                 </div>
-
-                <img id="view" class="hidden absolute inset-0 w-full h-full object-contain p-6 rounded-3xl bg-slate-900">
-                
-                <button id="resetBtn" class="hidden absolute top-4 right-4 z-[60] bg-slate-800/80 hover:bg-slate-700 p-2 rounded-lg text-[10px] uppercase font-bold tracking-tighter transition-all">Change Image</button>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center min-h-[400px] emerald-glow">
-                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-widest mb-6">Status: Standby</div>
+            <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[500px] shadow-2xl">
+                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-widest mb-6">Status: Awaiting Image</div>
                 
-                <img id="out" class="hidden w-full rounded-xl shadow-2xl border border-emerald-500/20 mb-6">
+                <img id="out" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
                 
-                <div id="btn-group" class="hidden w-full space-y-6">
+                <div id="controls" class="hidden w-full space-y-6">
                     <div class="space-y-2">
-                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Finish Style</label>
-                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm outline-none focus:border-emerald-500 appearance-none">
-                            <option value="Modern luxury kitchen, white marble countertops, high-gloss white cabinetry, warm cinematic architectural lighting, 8k">Modern White Marble</option>
-                            <option value="Industrial style kitchen, aged oak wood cabinetry, black matte hardware, moody lighting, exposed brick accents, 8k">Industrial Aged Oak</option>
-                            <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural morning sunlight, 8k">Hampton Shaker</option>
+                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Style Selection</label>
+                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-2xl text-sm outline-none focus:border-emerald-500">
+                            <option value="Modern luxury kitchen, white marble countertops, high-gloss white cabinetry, warm cinematic architectural lighting">Modern White Marble</option>
+                            <option value="Industrial kitchen, aged oak wood cabinets, black matte hardware, moody cinematic lighting">Industrial Aged Oak</option>
+                            <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural morning light">Hampton Shaker</option>
                         </select>
                     </div>
-                    <button id="go" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl hover:bg-emerald-400 transition-all uppercase tracking-tighter shadow-lg shadow-emerald-500/20">Generate Vision</button>
+                    <button id="go" class="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-emerald-400 hover:text-black transition-all uppercase tracking-tighter text-lg">Generate Vision</button>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
+        // Setup Proxy
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         const fileIn = document.getElementById('fileIn');
+        const clickBtn = document.getElementById('clickBtn');
         const view = document.getElementById('view');
         const msg = document.getElementById('msg');
         const out = document.getElementById('out');
-        const btnGroup = document.getElementById('btn-group');
+        const controls = document.getElementById('controls');
         const go = document.getElementById('go');
         const style = document.getElementById('style');
-        const promptText = document.getElementById('prompt-text');
-        const boxContainer = document.getElementById('box-container');
-        const resetBtn = document.getElementById('resetBtn');
 
-        fileIn.onchange = function(e) {
+        // Simple, Direct Click
+        clickBtn.onclick = () => fileIn.click();
+
+        fileIn.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     view.src = ev.target.result;
                     view.classList.remove('hidden');
-                    promptText.classList.add('hidden');
-                    btnGroup.classList.remove('hidden');
-                    resetBtn.classList.remove('hidden');
-                    boxContainer.classList.add('loaded'); // This hides the invisible click layer
+                    controls.classList.remove('hidden');
+                    clickBtn.innerHTML = "CHANGE IMAGE";
+                    clickBtn.classList.replace('bg-emerald-500', 'bg-slate-800');
+                    clickBtn.classList.replace('text-black', 'text-white');
                     msg.innerHTML = "Status: Image Ready";
                     msg.classList.replace('text-slate-600', 'text-emerald-500');
                 };
@@ -105,14 +89,11 @@
             }
         };
 
-        resetBtn.onclick = () => {
-            location.reload(); // Quickest way to reset the app state
-        };
-
         go.onclick = async () => {
             go.disabled = true;
             go.innerHTML = "RENDERING...";
             msg.innerHTML = "Status: Mixing Materials... (20s)";
+            
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
@@ -125,10 +106,10 @@
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
                 msg.innerHTML = "Status: Success";
-                go.innerHTML = "GENERATE AGAIN";
+                go.innerHTML = "NEW RENDER";
             } catch (e) {
                 console.error(e);
-                msg.innerHTML = "Status: API Key Error (Check Vercel)";
+                msg.innerHTML = "Status: Error (Check Vercel Key)";
                 go.innerHTML = "RETRY";
             }
             go.disabled = false;
