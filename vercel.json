@@ -1,5 +1,13 @@
 {
-  "rewrites": [
-    { "source": "/api/fal/proxy", "destination": "/api/fal/proxy" }
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; connect-src 'self' https://*.fal.ai https://*.fal.run; img-src 'self' data: blob: https://*.fal.ai https://*.fal.run;"
+        }
+      ]
+    }
   ]
 }
