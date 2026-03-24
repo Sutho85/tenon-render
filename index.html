@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TENON v1.2.2 - API TEST</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>TENON v1.2.3 - FIXED LOAD</title>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-white p-10 font-sans">
 
     <div class="max-w-xl mx-auto space-y-8">
-        <header class="text-center">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="debug" class="text-[10px] font-mono text-slate-500 mt-2">v1.2.2 - API DIAGNOSTICS</p>
+        <header class="text-center border-b border-slate-800 pb-6">
+            <h1 class="text-2xl font-black text-emerald-400 uppercase italic tracking-tighter">Tenon Vision</h1>
+            <p id="debug" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.2.3 - LIBRARY ATTACHED</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -25,6 +25,7 @@
                             v.src = e.target.result;
                             v.classList.remove('hidden');
                             document.getElementById('controls').classList.remove('hidden');
+                            document.getElementById('debug').innerHTML = 'STATUS: PREVIEW READY';
                         };
                         reader.readAsDataURL(file);
                     }
@@ -36,21 +37,29 @@
             <img id="view" class="hidden w-full h-auto rounded-lg">
         </div>
 
-        <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6">
             <select id="style" class="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl text-white font-bold text-sm">
                 <option value="Modern luxury kitchen, white marble, architectural lighting">Modern White Marble</option>
                 <option value="Industrial kitchen, aged oak, black hardware">Industrial Aged Oak</option>
             </select>
-            <button id="go" onclick="runRender()" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Render</button>
             
-            <div id="ai-status" class="text-center text-[10px] font-mono text-slate-500 uppercase mt-4">System: Standby</div>
+            <button id="go" onclick="runRender()" class="w-full bg-white text-black font-black py-5 rounded-xl hover:bg-emerald-500 transition-all uppercase text-sm">Generate AI Render</button>
             
-            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
+            <div id="ai-status" class="text-center text-[10px] font-mono text-slate-500 uppercase mt-2">Engine: Standby</div>
+            
+            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20 shadow-2xl">
         </div>
     </div>
 
     <script>
-        fal.config({ proxyUrl: "/api/fal/proxy" });
+        // 2. CHECK IF LIBRARY LOADED
+        if (typeof fal !== 'undefined') {
+            console.log("Fal.ai library loaded successfully.");
+            fal.config({ proxyUrl: "/api/fal/proxy" });
+        } else {
+            document.getElementById('debug').innerHTML = "CRITICAL ERROR: FAL LIBRARY NOT LOADED";
+            document.getElementById('debug').style.color = "red";
+        }
 
         async function runRender() {
             const go = document.getElementById('go');
@@ -59,14 +68,17 @@
             const view = document.getElementById('view');
 
             go.disabled = true;
-            go.innerHTML = "CHECKING CONNECTION...";
-            status.innerHTML = "System: Talking to Vercel Proxy...";
+            go.innerHTML = "TALKING TO ENGINE...";
+            status.innerHTML = "System: Building Render...";
 
             try {
+                // Double check library before running
+                if (typeof fal === 'undefined') throw new Error("Fal Library Missing");
+
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `High-end kitchen photo, ${document.getElementById('style').value}, 8k photorealistic`,
+                        prompt: `8k high-end kitchen photography, ${document.getElementById('style').value}, photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
@@ -77,14 +89,7 @@
                 go.innerHTML = "GENERATE AGAIN";
             } catch (e) {
                 console.error(e);
-                // DETAILED ERROR REPORTING
-                if (e.status === 401) {
-                    status.innerHTML = "ERROR: FAL_KEY IS WRONG OR MISSING";
-                } else if (e.status === 404) {
-                    status.innerHTML = "ERROR: PROXY FILE NOT FOUND ON VERCEL";
-                } else {
-                    status.innerHTML = "ERROR: " + (e.message || "CONNECTION FAILED");
-                }
+                status.innerHTML = "ERROR: " + (e.message || "CONNECTION FAILED");
                 go.innerHTML = "RETRY";
             }
             go.disabled = false;
