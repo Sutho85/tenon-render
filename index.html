@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TENON VISION v1.4.3</title>
+    <title>TENON VISION v1.4.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://unpkg.com/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
 
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase italic tracking-tighter">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.4.3 - FINAL SYNC</p>
+            <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.4.5 - INITIALIZING...</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -21,40 +22,44 @@
 
         <div class="bg-black rounded-2xl border border-slate-800 p-2 min-h-[200px] flex items-center justify-center">
             <img id="view" class="hidden w-full h-auto rounded-lg">
-            <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting CAD Image...</p>
+            <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting Image...</p>
         </div>
 
         <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
-            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm shadow-lg shadow-emerald-500/20">Generate Render</button>
-            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Engine Ready</div>
-            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20 shadow-2xl">
+            <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Render</button>
+            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Ready</div>
+            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@fal-ai/client@1.0.1/dist/bundle.min.js"></script>
+
     <script>
-        // Check for the engine every second until it appears
+        // Check if Tailwind loaded (Fixes the "Plain HTML" look)
+        if (typeof tailwind === 'undefined') {
+            console.error("Tailwind failed to load. Check Vercel Headers.");
+        }
+
+        // Check for Engine
         const checkEngine = setInterval(() => {
             const status = document.getElementById('status-bar');
             if (typeof fal !== 'undefined') {
                 fal.config({ proxyUrl: "/api/fal/proxy" });
-                status.innerText = "v1.4.3 - ENGINE ONLINE";
+                status.innerText = "v1.4.5 - ENGINE ONLINE";
                 status.style.color = "#10b981";
                 clearInterval(checkEngine);
-            } else {
-                status.innerText = "WAITING FOR ENGINE...";
             }
-        }, 1000);
+        }, 500);
 
+        // Simple UI Logic
         const fileIn = document.getElementById('fileIn');
-        const view = document.getElementById('view');
-
         fileIn.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    view.src = ev.target.result;
-                    view.classList.remove('hidden');
+                    document.getElementById('view').src = ev.target.result;
+                    document.getElementById('view').classList.remove('hidden');
                     document.getElementById('placeholder').classList.add('hidden');
                     document.getElementById('controls').classList.remove('hidden');
                 };
@@ -66,24 +71,23 @@
             const go = document.getElementById('go');
             const aiMsg = document.getElementById('ai-msg');
             const out = document.getElementById('out');
-
+            
             go.disabled = true;
-            aiMsg.innerHTML = "SYSTEM: RENDERING...";
-
+            aiMsg.innerHTML = "RENDERING...";
+            
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
-                        control_image_url: view.src,
-                        prompt: "High-end kitchen photography, modern cabinets, marble island, 8k photorealistic",
-                        image_size: "landscape_16_9",
-                        controlnet_conditioning_scale: 0.95
+                        control_image_url: document.getElementById('view').src,
+                        prompt: "Modern kitchen photography, marble, 8k photorealistic",
+                        image_size: "landscape_16_9"
                     }
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
                 aiMsg.innerHTML = "SUCCESS";
             } catch (e) {
-                aiMsg.innerHTML = "ERROR: CHECK API KEY";
+                aiMsg.innerHTML = "ERROR: CHECK PROXY CONFIG";
                 console.error(e);
             }
             go.disabled = false;
