@@ -7,67 +7,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
     <style>
-        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.15); }
-        /* Professional styling for the native upload button */
+        .emerald-glow { box-shadow: 0 0 50px rgba(16, 185, 129, 0.2); }
         input[type="file"]::file-selector-button {
             background: #10b981;
             color: black;
             font-weight: 900;
-            padding: 1rem 1.5rem;
+            padding: 1rem 2rem;
             border-radius: 0.75rem;
             border: none;
             cursor: pointer;
-            margin-right: 15px;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
-        input[type="file"]::file-selector-button:hover { background: #34d399; transform: translateY(-1px); }
+        input[type="file"]::file-selector-button:hover { background: #34d399; }
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen font-sans">
 
-    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.2 VISION</div>
+    <div class="fixed top-2 right-2 text-[10px] text-emerald-400 font-mono bg-slate-900 px-2 py-1 rounded border border-emerald-400/20 shadow-lg">v1.1.3 DEBUG</div>
 
-    <nav class="p-8 max-w-7xl mx-auto flex justify-between items-center">
+    <nav class="p-8 max-w-7xl mx-auto">
         <div class="text-2xl font-black italic text-emerald-400 tracking-tighter uppercase">TENON <span class="text-white font-normal">VISION</span></div>
     </nav>
 
     <main class="max-w-6xl mx-auto px-6 py-12">
-        <div class="grid lg:grid-cols-2 gap-12 items-start">
+        <div class="grid lg:grid-cols-2 gap-12">
             
-            <div class="space-y-6">
-                <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-8">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-4 font-bold">1. Upload CAD Screenshot</p>
-                    
-                    <input type="file" id="fileIn" class="w-full text-xs text-slate-400 font-mono" accept="image/*">
+            <div class="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-10">
+                <h2 class="text-xl font-bold mb-6">1. Select CAD Drawing</h2>
+                
+                <input type="file" id="fileIn" class="w-full text-sm text-slate-500 mb-8" accept="image/*">
 
-                    <div id="preview-area" class="mt-8 border-t border-slate-800 pt-8 flex flex-col items-center justify-center min-h-[300px]">
-                        <p id="preview-placeholder" class="text-slate-700 font-mono text-xs uppercase tracking-widest">Preview Window</p>
-                        <img id="view" class="hidden w-full rounded-2xl border border-slate-700 shadow-2xl max-h-[400px] object-contain">
-                    </div>
+                <div id="preview-box" class="border-t border-slate-800 pt-8 min-h-[300px] flex items-center justify-center bg-black/20 rounded-2xl">
+                    <p id="placeholder" class="text-slate-800 font-mono text-xs uppercase">Preview Area</p>
+                    <img id="view" class="hidden w-full h-auto rounded-xl shadow-2xl border border-slate-700">
                 </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 flex flex-col items-center justify-center min-h-[500px] emerald-glow">
-                <div id="msg" class="text-slate-600 font-mono text-[10px] uppercase tracking-[0.4em] mb-8">System: Standby</div>
+                <div id="msg" class="text-slate-500 font-mono text-[10px] uppercase tracking-[0.4em] mb-8 text-center">Engine: Standby</div>
                 
                 <img id="out" class="hidden w-full rounded-2xl shadow-2xl border border-emerald-500/20 mb-8">
                 
-                <div id="out-placeholder" class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-8">
-                    <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                </div>
-                
                 <div id="controls" class="hidden w-full space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1 text-center block w-full">Choose Interior Style</label>
-                        <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm outline-none focus:border-emerald-500 text-white font-bold text-center">
-                            <option value="Modern luxury kitchen, white marble countertops, high-gloss white cabinetry, warm architectural lighting">Modern White Marble</option>
-                            <option value="Industrial style kitchen, aged oak wood cabinetry, black matte hardware, moody lighting">Industrial Aged Oak</option>
-                            <option value="Classic Hampton style, white shaker cabinets, polished brass handles, bright natural morning light">Hampton Shaker</option>
-                        </select>
-                    </div>
-                    <button id="go" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase tracking-tighter text-xl shadow-lg">
+                    <select id="style" class="w-full bg-slate-800 border border-slate-700 p-5 rounded-2xl text-sm font-bold text-center">
+                        <option value="Modern luxury kitchen, white marble countertops, warm lighting">Modern White Marble</option>
+                        <option value="Industrial kitchen, aged oak wood, black hardware">Industrial Aged Oak</option>
+                    </select>
+                    <button id="go" class="w-full bg-white text-black font-black py-6 rounded-2xl hover:bg-emerald-500 transition-all uppercase text-xl shadow-lg">
                         2. Generate Vision
                     </button>
                 </div>
@@ -85,50 +72,48 @@
         const out = document.getElementById('out');
         const controls = document.getElementById('controls');
         const go = document.getElementById('go');
-        const style = document.getElementById('style');
-        const placeholder = document.getElementById('preview-placeholder');
-        const outPlaceholder = document.getElementById('out-placeholder');
+        const placeholder = document.getElementById('placeholder');
 
-        fileIn.onchange = function(e) {
+        fileIn.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
+                // This alert proves the code is actually running
+                console.log("File detected: " + file.name);
+                
                 const reader = new FileReader();
                 reader.onload = function(ev) {
                     view.src = ev.target.result;
                     view.classList.remove('hidden');
                     placeholder.classList.add('hidden');
                     controls.classList.remove('hidden');
-                    msg.innerHTML = "System: Image Loaded";
-                    msg.classList.replace('text-slate-600', 'text-emerald-500');
+                    msg.innerHTML = "Engine: Image Ready";
+                    msg.style.color = "#10b981";
                 };
                 reader.readAsDataURL(file);
             }
-        };
+        });
 
         go.onclick = async function() {
             go.disabled = true;
             go.innerHTML = "RENDERING...";
-            msg.innerHTML = "System: Processing... (20s)";
-            outPlaceholder.classList.add('hidden');
+            msg.innerHTML = "Engine: Processing... (20s)";
             
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `Professional high-end architectural photo, kitchen interior, ${style.value}, 8k resolution, photorealistic`,
+                        prompt: `High-end kitchen photo, ${document.getElementById('style').value}, 8k photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
-                msg.innerHTML = "System: Success";
-                go.innerHTML = "GENERATE AGAIN";
+                msg.innerHTML = "Engine: Success";
+                go.innerHTML = "NEW RENDER";
             } catch (e) {
-                console.error(e);
-                msg.innerHTML = "System Error: Check API Key";
+                msg.innerHTML = "Error: Check API Key";
                 go.innerHTML = "RETRY";
-                outPlaceholder.classList.remove('hidden');
             }
             go.disabled = false;
         };
