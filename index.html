@@ -2,32 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TENON v1.2.1 RESET</title>
+    <title>TENON v1.2.2 - API TEST</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@fal-ai/client@^1.0.0/dist/bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white p-10 font-sans">
 
     <div class="max-w-xl mx-auto space-y-8">
-        <div class="text-center border-b border-slate-800 pb-6">
+        <header class="text-center">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="debug" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.2.1 - Direct Logic Mode</p>
-        </div>
+            <p id="debug" class="text-[10px] font-mono text-slate-500 mt-2">v1.2.2 - API DIAGNOSTICS</p>
+        </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-            <label class="block text-xs font-bold text-slate-400 mb-4 uppercase">1. Select CAD Screenshot</label>
-            <input type="file" accept="image/*" 
+            <input type="file" id="fileIn" accept="image/*" 
                 onchange="
                     const file = this.files[0];
                     if (file) {
-                        document.getElementById('debug').innerHTML = 'FILE DETECTED: ' + file.name;
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             const v = document.getElementById('view');
                             v.src = e.target.result;
                             v.classList.remove('hidden');
                             document.getElementById('controls').classList.remove('hidden');
-                            document.getElementById('debug').innerHTML = 'STATUS: PREVIEW LOADED';
                         };
                         reader.readAsDataURL(file);
                     }
@@ -36,8 +33,7 @@
         </div>
 
         <div class="bg-black rounded-2xl border border-slate-800 p-4 min-h-[200px] flex items-center justify-center overflow-hidden">
-            <img id="view" class="hidden w-full h-auto rounded-lg shadow-2xl">
-            <p id="placeholder" class="text-slate-800 font-mono text-[10px]">Awaiting Image...</p>
+            <img id="view" class="hidden w-full h-auto rounded-lg">
         </div>
 
         <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
@@ -45,14 +41,15 @@
                 <option value="Modern luxury kitchen, white marble, architectural lighting">Modern White Marble</option>
                 <option value="Industrial kitchen, aged oak, black hardware">Industrial Aged Oak</option>
             </select>
-            <button id="go" onclick="runRender()" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate AI Vision</button>
-            <div id="ai-status" class="text-center text-[10px] font-mono text-slate-500 uppercase mt-4">Engine Standby</div>
-            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20 shadow-2xl">
+            <button id="go" onclick="runRender()" class="w-full bg-white text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Render</button>
+            
+            <div id="ai-status" class="text-center text-[10px] font-mono text-slate-500 uppercase mt-4">System: Standby</div>
+            
+            <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
     <script>
-        // Setup Proxy
         fal.config({ proxyUrl: "/api/fal/proxy" });
 
         async function runRender() {
@@ -60,27 +57,34 @@
             const status = document.getElementById('ai-status');
             const out = document.getElementById('out');
             const view = document.getElementById('view');
-            const style = document.getElementById('style');
 
             go.disabled = true;
-            go.innerHTML = "RENDERING...";
-            status.innerHTML = "System: Processing Textures...";
+            go.innerHTML = "CHECKING CONNECTION...";
+            status.innerHTML = "System: Talking to Vercel Proxy...";
 
             try {
                 const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                     input: {
                         control_image_url: view.src,
-                        prompt: `High-end kitchen photo, ${style.value}, photorealistic`,
+                        prompt: `High-end kitchen photo, ${document.getElementById('style').value}, 8k photorealistic`,
                         image_size: "landscape_16_9",
                         controlnet_conditioning_scale: 0.95
                     }
                 });
                 out.src = res.data.images[0].url;
                 out.classList.remove('hidden');
-                status.innerHTML = "System: Success";
+                status.innerHTML = "System: Success!";
                 go.innerHTML = "GENERATE AGAIN";
             } catch (e) {
-                status.innerHTML = "Error: Check Vercel API Key";
+                console.error(e);
+                // DETAILED ERROR REPORTING
+                if (e.status === 401) {
+                    status.innerHTML = "ERROR: FAL_KEY IS WRONG OR MISSING";
+                } else if (e.status === 404) {
+                    status.innerHTML = "ERROR: PROXY FILE NOT FOUND ON VERCEL";
+                } else {
+                    status.innerHTML = "ERROR: " + (e.message || "CONNECTION FAILED");
+                }
                 go.innerHTML = "RETRY";
             }
             go.disabled = false;
