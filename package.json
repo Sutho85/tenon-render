@@ -2,7 +2,7 @@
   "name": "tenon-render",
   "version": "1.0.0",
   "dependencies": {
-    "@fal-ai/client": "^1.0.1",
-    "@fal-ai/server-proxy": "^0.1.0"
+    "@fal-ai/client": "^1.2.0",
+    "@fal-ai/server-proxy": "^0.1.1"
   }
 }
