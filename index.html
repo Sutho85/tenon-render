@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TENON VISION</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@fal-ai/client@1.0.1/dist/bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fal-ai/client@1.2.0/dist/bundle.min.js"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
-            <h1 class="text-2xl font-black text-emerald-400 uppercase italic italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">Connecting...</p>
+            <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase text-yellow-500">Syncing Engine...</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -26,40 +26,49 @@
     </div>
 
     <script>
-        window.onload = () => {
+        // Check for the engine every second until it finds it
+        const checkEngine = setInterval(() => {
             const status = document.getElementById('status-bar');
             if (typeof fal !== 'undefined') {
+                // Point to our manual proxy
                 fal.config({ proxyUrl: "/api/fal/proxy" });
                 status.innerText = "Engine Online";
                 status.style.color = "#10b981";
-            } else {
-                status.innerText = "Connection Failed";
-                status.style.color = "#ef4444";
+                clearInterval(checkEngine);
             }
-        };
+        }, 500);
 
         const fileIn = document.getElementById('fileIn');
         fileIn.onchange = () => document.getElementById('controls').classList.remove('hidden');
 
         async function runRender() {
+            const go = document.getElementById('go');
+            const aiMsg = document.getElementById('ai-msg');
             const file = fileIn.files[0];
+            
+            if (!file) return;
+            
+            go.disabled = true;
+            aiMsg.innerText = "Processing Image...";
+            
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const aiMsg = document.getElementById('ai-msg');
-                aiMsg.innerText = "Rendering...";
+                aiMsg.innerText = "Rendering via AI...";
                 try {
                     const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                         input: { 
                             control_image_url: e.target.result,
-                            prompt: "Modern luxury kitchen, marble, 8k",
+                            prompt: "Professional kitchen photography, luxury cabinetry, marble surfaces, 8k",
                         }
                     });
                     document.getElementById('out').src = res.data.images[0].url;
                     document.getElementById('out').classList.remove('hidden');
                     aiMsg.innerText = "Success";
                 } catch (err) {
-                    aiMsg.innerText = "Error: Check API Key";
+                    aiMsg.innerText = "Error: Check FAL_KEY in Vercel Settings";
+                    console.error(err);
                 }
+                go.disabled = false;
             };
             reader.readAsDataURL(file);
         }
