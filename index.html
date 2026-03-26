@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TENON VISION</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fal-ai/client@1.2.0/dist/bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fal-client/1.2.0/bundle.min.js" onerror="alert('Library Blocked by Network')"></script>
 </head>
 <body class="bg-slate-950 text-white p-6 font-sans">
     <div class="max-w-xl mx-auto space-y-6">
         <header class="text-center border-b border-slate-800 pb-4">
             <h1 class="text-2xl font-black text-emerald-400 uppercase italic">Tenon Vision</h1>
-            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase text-yellow-500">Syncing Engine...</p>
+            <p id="status-bar" class="text-[10px] font-mono text-slate-500 mt-2 uppercase">v1.6.4 - STANDBY</p>
         </header>
 
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
@@ -20,23 +20,25 @@
 
         <div id="controls" class="hidden bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4 text-center">
             <button id="go" onclick="runRender()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-emerald-400 transition-all uppercase text-sm">Generate Render</button>
-            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2">Ready</div>
+            <div id="ai-msg" class="text-[10px] font-mono text-slate-400 uppercase mt-2 italic">Ready</div>
             <img id="out" class="hidden w-full rounded-lg mt-4 border border-emerald-500/20">
         </div>
     </div>
 
     <script>
-        // Check for the engine every second until it finds it
-        const checkEngine = setInterval(() => {
+        // Force a check the moment the page loads
+        window.addEventListener('DOMContentLoaded', () => {
             const status = document.getElementById('status-bar');
+            
             if (typeof fal !== 'undefined') {
-                // Point to our manual proxy
                 fal.config({ proxyUrl: "/api/fal/proxy" });
                 status.innerText = "Engine Online";
                 status.style.color = "#10b981";
-                clearInterval(checkEngine);
+            } else {
+                status.innerText = "Error: Library Missing";
+                status.style.color = "#ef4444";
             }
-        }, 500);
+        });
 
         const fileIn = document.getElementById('fileIn');
         fileIn.onchange = () => document.getElementById('controls').classList.remove('hidden');
@@ -47,26 +49,23 @@
             const file = fileIn.files[0];
             
             if (!file) return;
-            
             go.disabled = true;
-            aiMsg.innerText = "Processing Image...";
+            aiMsg.innerText = "Rendering...";
             
             const reader = new FileReader();
             reader.onload = async (e) => {
-                aiMsg.innerText = "Rendering via AI...";
                 try {
                     const res = await fal.subscribe("fal-ai/fast-sdxl-controlnet-canny", {
                         input: { 
                             control_image_url: e.target.result,
-                            prompt: "Professional kitchen photography, luxury cabinetry, marble surfaces, 8k",
+                            prompt: "Professional kitchen photography, luxury cabinetry, marble, 8k",
                         }
                     });
                     document.getElementById('out').src = res.data.images[0].url;
                     document.getElementById('out').classList.remove('hidden');
                     aiMsg.innerText = "Success";
                 } catch (err) {
-                    aiMsg.innerText = "Error: Check FAL_KEY in Vercel Settings";
-                    console.error(err);
+                    aiMsg.innerText = "Error: Proxy Failed";
                 }
                 go.disabled = false;
             };
