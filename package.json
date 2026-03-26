@@ -1,6 +1,6 @@
 {
-  "name": "tenon-vision",
-  "version": "1.5.0",
+  "name": "tenon-render",
+  "version": "1.0.0",
   "dependencies": {
     "@fal-ai/client": "^1.0.1",
     "@fal-ai/server-proxy": "^0.1.0"
